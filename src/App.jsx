@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+import Login from "./modulo1/pages/Login";
+import Register from "./modulo1/pages/Register";
+
 function App() {
   return (
     <BrowserRouter>
@@ -21,12 +24,10 @@ function App() {
             } />
             
             {/* Ruta de Cuentas: Que hará el Desarrollador 1 */}
-            <Route path="/login" element={
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-bold text-gray-800">Módulo 1: Login y Registro</h2>
-                <p className="text-gray-600 mt-2">Aquí irá el formulario de acceso y el perfil.</p>
-              </div>
-            } />
+            <Route path="/login" element={<Login />} />
+
+            <Route path="/register" element={<Register />} />
+             
 
             {/* Ruta de Detalle: Que hará el Desarrollador 3 */}
             <Route path="/detalle/:id" element={
@@ -57,5 +58,7 @@ function App() {
     </BrowserRouter>
   );
 }
+
+
 
 export default App;
