@@ -2,8 +2,9 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 // Importamos los componentes reales de tu compañero (Módulo 1)
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
-// Importación de tu Módulo 2 (Feed Principal)
+// Importación de tu Módulo 2 (Feed Principal y Detalle Expandido)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
+import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; // NUEVO
 
 function App() {
   return (
@@ -37,27 +38,22 @@ function App() {
 
               {/* Botones de Navegación del Navbar */}
               <div className="flex items-center space-x-2 md:space-x-4">
-                {/* Enlace al Módulo 2 (Inicio / Feed) - MODIFICADO CON LA CASITA */}
                 <Link to="/" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   🏠 <span>Inicio</span>
                 </Link>
 
-                {/* Enlace al Módulo 3 (Crear Publicación) */}
                 <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   ➕ <span className="ml-0.5">Publicar</span>
                 </Link>
 
-                {/* Enlace al Módulo 5 (Chat / Mensajería) */}
                 <Link to="/chat" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   💬 <span className="hidden sm:inline">Mensajes</span>
                 </Link>
 
-                {/* Enlace al Módulo 4 (Perfil del Usuario) */}
                 <Link to="/perfil" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   👤 <span>Mi Perfil</span>
                 </Link>
 
-                {/* Botón de Acento para el Módulo 1 (Login) */}
                 <Link to="/login" className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
                   Ingresar
                 </Link>
@@ -73,6 +69,9 @@ function App() {
           <Routes>
             {/* Módulo 2: Feed Principal Conectado Real */}
             <Route path="/" element={<FeedPrincipal />} />
+            
+            {/* Módulo 2: Detalle de Publicación Expandida (NUEVO) */}
+            <Route path="/detalle/:id" element={<DetalleAnuncio />} />
             
             {/* Módulo 1: Login y Registro */}
             <Route path="/login" element={<Login />} />
