@@ -1,11 +1,22 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// Importamos los componentes reales de tu compañero (Módulo 1)
+
+// Importamos los componentes de tus compañeros
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
-// Importación de tu Módulo 2 (Feed Principal)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
 
+// ==========================================
+// IMPORTACIONES DE TU MÓDULO 3 (TÚ CÓDIGO)
+// ==========================================
+import PostForm from './modulo3/components/PostForm';
+import EditPost from './modulo3/pages/EditPost';
+import MyPosts from './modulo3/pages/MyPosts';
+
 function App() {
+  // SIMULADOR DE LOGIN: Cambia a 'true' o usa el botón "Ingresar" para probar
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   return (
     <BrowserRouter>
       {/* Fondo claro global para scroll infinito */}
@@ -23,7 +34,7 @@ function App() {
                 </Link>
               </div>
 
-              {/* Barra de Búsqueda (Estilo Amazon) */}
+              {/* Barra de Búsqueda */}
               <div className="hidden md:block flex-1 max-w-md mx-8">
                 <div className="relative">
                   <input 
@@ -37,30 +48,37 @@ function App() {
 
               {/* Botones de Navegación del Navbar */}
               <div className="flex items-center space-x-2 md:space-x-4">
-                {/* Enlace al Módulo 2 (Inicio / Feed) - MODIFICADO CON LA CASITA */}
                 <Link to="/" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   🏠 <span>Inicio</span>
                 </Link>
 
-                {/* Enlace al Módulo 3 (Crear Publicación) */}
-                <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                  ➕ <span className="ml-0.5">Publicar</span>
-                </Link>
+                {/* Mostrar opciones privadas solo si está logueado */}
+                {isLoggedIn && (
+                  <>
+                    <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                      ➕ <span className="ml-0.5">Publicar</span>
+                    </Link>
 
-                {/* Enlace al Módulo 5 (Chat / Mensajería) */}
+                    {/* TU PANTALLA: Mis Artículos */}
+                    <Link to="/mis-articulos" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                      📦 <span className="hidden sm:inline">Mis Artículos</span>
+                    </Link>
+                  </>
+                )}
+
                 <Link to="/chat" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   💬 <span className="hidden sm:inline">Mensajes</span>
                 </Link>
 
-                {/* Enlace al Módulo 4 (Perfil del Usuario) */}
-                <Link to="/perfil" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                  👤 <span>Mi Perfil</span>
-                </Link>
-
-                {/* Botón de Acento para el Módulo 1 (Login) */}
-                <Link to="/login" className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
-                  Ingresar
-                </Link>
+                {isLoggedIn ? (
+                  <button onClick={() => setIsLoggedIn(false)} className="text-sm font-medium hover:text-red-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                    🚪 Salir
+                  </button>
+                ) : (
+                  <Link to="/login" onClick={() => setIsLoggedIn(true)} className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
+                    Ingresar
+                  </Link>
+                )}
               </div>
 
             </div>
@@ -71,34 +89,26 @@ function App() {
         {/* CONTENEDOR CENTRAL DE LAS PÁGINAS */}
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>
-            {/* Módulo 2: Feed Principal Conectado Real */}
             <Route path="/" element={<FeedPrincipal />} />
-            
-            {/* Módulo 1: Login y Registro */}
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
 
-            {/* Módulo 3: Crear Publicación */}
-            <Route path="/publicar" element={
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900">Módulo 3: Crear Publicación</h2>
-                <p className="text-gray-500 mt-1">Formulario para añadir un nuevo artículo a mockAnuncios.</p>
-              </div>
-            } />
+            {/* ========================================== */}
+            {/* RUTAS DE TU MÓDULO 3 CONECTADAS */}
+            {/* ========================================== */}
+            <Route path="/publicar" element={<PostForm />} />
+            <Route path="/editar/:id" element={<EditPost />} />
+            <Route path="/mis-articulos" element={<MyPosts />} />
 
-            {/* Módulo 4: Perfil del Usuario */}
+            {/* Rutas pendientes de tus compañeros */}
             <Route path="/perfil" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 4: Perfil de Usuario</h2>
-                <p className="text-gray-500 mt-1">Aquí se mostrarán los datos personales del estudiante y sus publicaciones activas.</p>
               </div>
             } />
-
-            {/* Módulo 5: Chat entre Usuarios */}
             <Route path="/chat" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 5: Chat y Mensajería</h2>
-                <p className="text-gray-500 mt-1">Bandeja de entrada simulada para negociar compras y ventas.</p>
               </div>
             } />
           </Routes>
