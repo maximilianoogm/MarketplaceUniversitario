@@ -1,35 +1,42 @@
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// Importamos los componentes reales de tu compañero (Módulo 1)
+
+// ==========================================
+// IMPORTACIONES DE TUS COMPAÑEROS
+// ==========================================
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
-// Importación de tu Módulo 2 (Feed Principal y Detalle Expandido)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
 import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; 
-// Importación del componente de tu compañero (Módulo 4)
 import Dashboard from './modulo4/pages/Dashboard';
 
+// ==========================================
+// IMPORTACIONES DE TU MÓDULO 3
+// ==========================================
+import PostForm from './modulo3/components/PostForm';
+import EditPost from './modulo3/pages/EditPost';
+import MyPosts from './modulo3/pages/MyPosts';
 import ChatwootWidget from './components/ChatwootWidget';
 
 function App() {
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <BrowserRouter>
-      {/* Fondo claro global para scroll infinito */}
       <div className="min-h-screen bg-gray-50 text-gray-800">
         
-        {/* ================= NAVBAR GLOBAL (Estilo Amazon / Temu) ================= */}
+        {/* ================= NAVBAR GLOBAL ================= */}
         <nav className="bg-indigo-900 text-white sticky top-0 z-50 shadow-md">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               
-              {/* Logo / Nombre del Marketplace */}
+              {/* Logo */}
               <div className="flex-shrink-0">
                 <Link to="/" className="text-xl font-black tracking-tight hover:text-amber-400 transition-colors">
                   🎓 Uni<span className="text-amber-400">Market</span>
                 </Link>
               </div>
 
-              {/* Barra de Búsqueda (Estilo Amazon) */}
+              {/* Barra de Búsqueda */}
               <div className="hidden md:block flex-1 max-w-md mx-8">
                 <div className="relative">
                   <input 
@@ -47,51 +54,58 @@ function App() {
                   🏠 <span>Inicio</span>
                 </Link>
 
-                <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                  ➕ <span className="ml-0.5">Publicar</span>
+                {/* Opciones privadas (Solo logueados) */}
+                {isLoggedIn && (
+                  <>
+                    <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                      ➕ <span className="ml-0.5">Publicar</span>
+                    </Link>
+                    <Link to="/mis-articulos" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                      📦 <span className="hidden sm:inline">Mis Artículos</span>
+                    </Link>
+                  </>
+                )}
+
+                <Link to="/chat" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                  💬 <span className="hidden sm:inline">Mensajes</span>
                 </Link>
 
-                {/* El botón de Chat ha sido eliminado de aquí para iniciar el flujo desde el detalle */}
-
+                {/* Ruta de tu compañero del Módulo 4 */}
                 <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   👤 <span>Mi Perfil</span>
                 </Link>
 
-                <Link to="/login" className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
-                  Ingresar
-                </Link>
+                {isLoggedIn ? (
+                  <button onClick={() => setIsLoggedIn(false)} className="text-sm font-medium hover:text-red-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                    🚪 Salir
+                  </button>
+                ) : (
+                  <Link to="/login" onClick={() => setIsLoggedIn(true)} className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
+                    Ingresar
+                  </Link>
+                )}
               </div>
 
             </div>
           </div>
         </nav>
-        {/* ======================================================================= */}
 
         {/* CONTENEDOR CENTRAL DE LAS PÁGINAS */}
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>
-            {/* Módulo 2: Feed Principal Conectado Real */}
+            {/* RUTAS DE TUS COMPAÑEROS */}
             <Route path="/" element={<FeedPrincipal />} />
-            
-            {/* Módulo 2: Detalle de Publicación Expandida */}
             <Route path="/detalle/:id" element={<DetalleAnuncio />} />
-            
-            {/* Módulo 1: Login y Registro */}
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
-
-            {/* Módulo 3: Crear Publicación */}
-            <Route path="/publicar" element={
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900">Módulo 3: Crear Publicación</h2>
-                <p className="text-gray-500 mt-1">Formulario para añadir un nuevo artículo a mockAnuncios.</p>
-              </div>
-            } />
-
-            {/* Módulo 4: Dashboard Integrado */}
             <Route path="/dashboard" element={<Dashboard />} />
 
-            {/* Módulo 5: Chat entre Usuarios (mantenemos la ruta para que la pantalla exista al redireccionar) */}
+            {/* RUTAS DE TU MÓDULO 3 */}
+            <Route path="/publicar" element={<PostForm />} />
+            <Route path="/editar/:id" element={<EditPost />} />
+            <Route path="/mis-articulos" element={<MyPosts />} />
+
+            {/* MÓDULO 5 (Aún en construcción por tu equipo) */}
             <Route path="/chat" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 5: Chat y Mensajería</h2>
