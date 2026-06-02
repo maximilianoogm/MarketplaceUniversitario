@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+// Importamos los componentes reales de tu compañero (Módulo 1)
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
+// Importación de tu Módulo 2 (Feed Principal y Detalle Expandido)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
 import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; 
+// Importación del componente de tu compañero (Módulo 4)
 import Dashboard from './modulo4/pages/Dashboard';
 
 function App() {
@@ -45,11 +48,8 @@ function App() {
                   ➕ <span className="ml-0.5">Publicar</span>
                 </Link>
 
-                <Link to="/chat" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                  💬 <span className="hidden sm:inline">Mensajes</span>
-                </Link>
+                {/* El botón de Chat ha sido eliminado de aquí para iniciar el flujo desde el detalle */}
 
-                {/* Enlace corregido al Módulo 4 */}
                 <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   👤 <span>Mi Perfil</span>
                 </Link>
@@ -88,7 +88,7 @@ function App() {
             {/* Módulo 4: Dashboard Integrado */}
             <Route path="/dashboard" element={<Dashboard />} />
 
-            {/* Módulo 5: Chat entre Usuarios */}
+            {/* Módulo 5: Chat entre Usuarios (mantenemos la ruta para que la pantalla exista al redireccionar) */}
             <Route path="/chat" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 5: Chat y Mensajería</h2>
