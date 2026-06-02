@@ -1,10 +1,9 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-// Importamos los componentes reales de tu compañero (Módulo 1)
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
-// Importación de tu Módulo 2 (Feed Principal y Detalle Expandido)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
-import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; // NUEVO
+import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; 
+import Dashboard from './modulo4/pages/Dashboard';
 
 function App() {
   return (
@@ -50,7 +49,8 @@ function App() {
                   💬 <span className="hidden sm:inline">Mensajes</span>
                 </Link>
 
-                <Link to="/perfil" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                {/* Enlace corregido al Módulo 4 */}
+                <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   👤 <span>Mi Perfil</span>
                 </Link>
 
@@ -70,7 +70,7 @@ function App() {
             {/* Módulo 2: Feed Principal Conectado Real */}
             <Route path="/" element={<FeedPrincipal />} />
             
-            {/* Módulo 2: Detalle de Publicación Expandida (NUEVO) */}
+            {/* Módulo 2: Detalle de Publicación Expandida */}
             <Route path="/detalle/:id" element={<DetalleAnuncio />} />
             
             {/* Módulo 1: Login y Registro */}
@@ -85,13 +85,8 @@ function App() {
               </div>
             } />
 
-            {/* Módulo 4: Perfil del Usuario */}
-            <Route path="/perfil" element={
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900">Módulo 4: Perfil de Usuario</h2>
-                <p className="text-gray-500 mt-1">Aquí se mostrarán los datos personales del estudiante y sus publicaciones activas.</p>
-              </div>
-            } />
+            {/* Módulo 4: Dashboard Integrado */}
+            <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Módulo 5: Chat entre Usuarios */}
             <Route path="/chat" element={
