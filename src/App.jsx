@@ -4,6 +4,7 @@ import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
 // Importación de tu Módulo 2 (Feed Principal)
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
+import Dashboard from './modulo4/pages/Dashboard';
 
 import ChatwootWidget from './components/ChatwootWidget';
 
@@ -56,7 +57,7 @@ function App() {
                 </Link>
 
                 {/* Enlace al Módulo 4 (Perfil del Usuario) */}
-                <Link to="/perfil" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                   👤 <span>Mi Perfil</span>
                 </Link>
 
@@ -89,13 +90,8 @@ function App() {
               </div>
             } />
 
-            {/* Módulo 4: Perfil del Usuario */}
-            <Route path="/perfil" element={
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-900">Módulo 4: Perfil de Usuario</h2>
-                <p className="text-gray-500 mt-1">Aquí se mostrarán los datos personales del estudiante y sus publicaciones activas.</p>
-              </div>
-            } />
+            {/* Módulo 4: Dashboard */}
+            <Route path="/dashboard" element={<Dashboard />} />
 
             {/* Módulo 5: Chat entre Usuarios */}
             <Route path="/chat" element={
