@@ -4,7 +4,14 @@ import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 // Importamos los componentes de tus compañeros
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
+<<<<<<< HEAD
+=======
+// Importación de tu Módulo 2 (Feed Principal y Detalle Expandido)
+>>>>>>> 96f524a7ff5ee8c4710619dc80e5518e8a46e6f8
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
+import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; 
+// Importación del componente de tu compañero (Módulo 4)
+import Dashboard from './modulo4/pages/Dashboard';
 
 // ==========================================
 // IMPORTACIONES DE TU MÓDULO 3 (TÚ CÓDIGO)
@@ -52,6 +59,7 @@ function App() {
                   🏠 <span>Inicio</span>
                 </Link>
 
+<<<<<<< HEAD
                 {/* Mostrar opciones privadas solo si está logueado */}
                 {isLoggedIn && (
                   <>
@@ -79,6 +87,21 @@ function App() {
                     Ingresar
                   </Link>
                 )}
+=======
+                <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                  ➕ <span className="ml-0.5">Publicar</span>
+                </Link>
+
+                {/* El botón de Chat ha sido eliminado de aquí para iniciar el flujo desde el detalle */}
+
+                <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+                  👤 <span>Mi Perfil</span>
+                </Link>
+
+                <Link to="/login" className="bg-amber-500 hover:bg-amber-400 text-indigo-950 text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95">
+                  Ingresar
+                </Link>
+>>>>>>> 96f524a7ff5ee8c4710619dc80e5518e8a46e6f8
               </div>
 
             </div>
@@ -90,6 +113,14 @@ function App() {
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>
             <Route path="/" element={<FeedPrincipal />} />
+<<<<<<< HEAD
+=======
+            
+            {/* Módulo 2: Detalle de Publicación Expandida */}
+            <Route path="/detalle/:id" element={<DetalleAnuncio />} />
+            
+            {/* Módulo 1: Login y Registro */}
+>>>>>>> 96f524a7ff5ee8c4710619dc80e5518e8a46e6f8
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Register />} />
 
@@ -100,12 +131,19 @@ function App() {
             <Route path="/editar/:id" element={<EditPost />} />
             <Route path="/mis-articulos" element={<MyPosts />} />
 
+<<<<<<< HEAD
             {/* Rutas pendientes de tus compañeros */}
             <Route path="/perfil" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 4: Perfil de Usuario</h2>
               </div>
             } />
+=======
+            {/* Módulo 4: Dashboard Integrado */}
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Módulo 5: Chat entre Usuarios (mantenemos la ruta para que la pantalla exista al redireccionar) */}
+>>>>>>> 96f524a7ff5ee8c4710619dc80e5518e8a46e6f8
             <Route path="/chat" element={
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h2 className="text-2xl font-bold text-gray-900">Módulo 5: Chat y Mensajería</h2>
