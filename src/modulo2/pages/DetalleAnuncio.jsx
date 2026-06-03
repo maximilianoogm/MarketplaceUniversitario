@@ -1,131 +1,113 @@
-import { useParams, Link } from "react-router-dom";
-import { mockAnuncios } from "../../data/mocks";
+import { useParams, Link } from 'react-router-dom';
+import { mockAnuncios } from '../../data/mocks';
+import ChatwootWidget from '../../components/ChatwootWidget'; // Importamos el componente del Módulo 5
 
 const DetalleAnuncio = () => {
-  // Capturamos el id desde la URL (ejemplo: /detalle/2)
   const { id } = useParams();
-
-  // Buscamos el anuncio específico que coincida con ese ID
+  
+  // Buscamos el anuncio específico en nuestros mocks en memoria usando el ID de la URL
   const anuncio = mockAnuncios.find((item) => item.id === parseInt(id));
 
-  // 🚀 FUNCIÓN DE INYECCIÓN DE DATOS Y APERTURA DE CHATWOOT
-  const handleContactarVendedor = () => {
-    // Verificamos que el script de Chatwoot esté cargado en la ventana global
-    if (window.$chatwoot && anuncio) {
-      
-      // 1. Inyectamos los atributos personalizados del anuncio actual al backend
-      window.$chatwoot.setCustomAttributes({
-        id_vendedor: anuncio.vendedorId,   // Código de alumno (Ej: "20231889")
-        producto_interes: anuncio.titulo  // Título para saber qué quiere comprar
-      });
-
-      // 2. Abrimos la burbuja del chat automáticamente en pantalla
-      window.$chatwoot.toggle("open");
-    } else {
-      console.warn("Chatwoot no está inicializado globalmente o no se hallaron datos.");
-    }
-  };
-
-  // Manejo de caso por si el usuario escribe un ID que no existe en la URL
+  // Control de seguridad por si el estudiante manipula la URL manual con un ID inexistente
   if (!anuncio) {
     return (
-      <div className="bg-white border border-gray-100 rounded-xl p-12 text-center shadow-sm max-w-xl mx-auto mt-10">
-        <span className="text-4xl block mb-3">⚠️</span>
-        <h3 className="text-lg font-bold text-gray-900">Publicación no encontrada</h3>
-        <p className="text-sm text-gray-400 mt-1">
-          El artículo o servicio que estás buscando no existe o fue retirado.
-        </p>
-        <Link 
-          to="/" 
-          className="mt-4 inline-block bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
-        >
-          Volver al Inicio
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-black text-gray-900">Anuncio no encontrado</h2>
+        <p className="text-gray-500 mt-2">El artículo que estás buscando no existe o fue retirado por el vendedor.</p>
+        <Link to="/" className="mt-6 inline-block bg-indigo-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-800 transition-colors">
+          Volver al Feed Principal
         </Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mt-4 animate-fade-in">
-      {/* Botón de retorno rápido */}
-      <Link 
-        to="/" 
-        className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-900 hover:text-indigo-700 mb-6 transition-colors group"
-      >
-        <span className="group-hover:-translate-x-1 transition-transform">←</span> Volver a descubrir publicaciones
-      </Link>
+    <div className="max-w-5xl mx-auto py-6">
+      {/* Botón de retorno al catálogo principal */}
+      <div className="mb-6">
+        <Link to="/" className="inline-flex items-center text-sm font-bold text-indigo-900 hover:text-amber-600 transition-colors gap-2">
+          ⬅️ Volver al catálogo
+        </Link>
+      </div>
 
-      {/* Tarjeta de Contenedor Principal (Estilo Vista de Producto Expandido) */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-8 p-6 md:p-8">
+      {/* Contenedor Principal de la Ficha del Producto */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden grid md:grid-cols-2 gap-8 p-6 sm:p-8">
         
-        {/* Columna Izquierda: Imagen de stock limpia */}
-        <div className="relative rounded-xl overflow-hidden bg-gray-50 max-h-[350px]">
+        {/* Columna Izquierda: Imagen del Artículo */}
+        <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
           <img 
             src={anuncio.imagen} 
             alt={anuncio.titulo} 
             className="w-full h-full object-cover"
           />
-          <span className="absolute top-3 left-3 bg-indigo-900/90 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-xs">
+          <span className="absolute top-4 left-4 bg-indigo-900 text-white text-xs font-extrabold uppercase px-3 py-1.5 rounded-full shadow-sm">
             {anuncio.tipo}
           </span>
         </div>
 
-        {/* Columna Derecha: Información Detallada del Mock */}
+        {/* Columna Derecha: Información de Venta y Metadatos */}
         <div className="flex flex-col justify-between">
           <div>
-            {/* Calificación y Fecha */}
-            <div className="flex items-center justify-between text-xs font-medium text-gray-400 mb-3">
-              <div className="flex items-center gap-1 text-amber-500 font-semibold bg-amber-50 px-2 py-0.5 rounded-md">
-                <span>⭐</span> {anuncio.rating.toFixed(1)}
-              </div>
-              <span>Publicado: {anuncio.fechaPublicacion}</span>
+            {/* Cabecera, Título y Sistema de Calificación */}
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+              <span>Publicado el {anuncio.fechaPublicacion}</span>
+              <span>•</span>
+              <span className="text-amber-500 font-bold">⭐ {anuncio.rating}</span>
             </div>
-
-            {/* Título */}
-            <h2 className="text-2xl font-black text-gray-950 leading-snug mb-3">
+            
+            <h1 className="text-3xl font-black text-gray-950 tracking-tight leading-tight">
               {anuncio.titulo}
-            </h2>
+            </h1>
 
-            {/* Caja de Precio Resaltada */}
-            <div className="bg-gray-50 p-4 rounded-xl mb-4 border border-gray-100">
-              <span className="text-xs text-gray-400 block font-medium mb-0.5">Valor estimado</span>
-              <span className="text-2xl font-black text-gray-950">
-                {anuncio.precio === 0 ? (
-                  <span className="text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg text-lg font-bold">Gratis / Intercambio</span>
-                ) : (
-                  `S/. ${anuncio.precio.toFixed(2)}`
-                )}
-              </span>
+            {/* Precio formateado con estilos de alta visibilidad */}
+            <div className="mt-4 text-2xl font-black text-indigo-950">
+              {anuncio.precio === 0 ? (
+                <span className="text-emerald-600 uppercase tracking-wide bg-emerald-50 px-3 py-1 rounded-lg text-lg">Gratis / Regalo</span>
+              ) : (
+                `S/ ${anuncio.precio.toFixed(2)}`
+              )}
             </div>
 
-            {/* Descripción Completa */}
-            <div className="mb-6">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Detalles del anuncio</h4>
-              <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+            <hr className="my-6 border-gray-100" />
+
+            {/* Descripción del Producto */}
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">Descripción del artículo</h3>
+              <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
                 {anuncio.descripcion}
               </p>
             </div>
           </div>
 
-          {/* Información del Vendedor / Autor */}
-          <div className="pt-4 border-t border-gray-100 bg-indigo-900 text-white p-4 rounded-xl flex items-center justify-between shadow-xs">
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-indigo-200 block">Anunciante</span>
-              <span className="font-bold text-base block">👤 {anuncio.autor.nombre}</span>
-              <span className="text-xs text-indigo-200 block">Carrera: {anuncio.autor.carrera}</span>
+          {/* Caja Informativa del Vendedor Universitario */}
+          <div className="mt-8 bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Información del vendedor</h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-black text-gray-950 text-base">{anuncio.autor.nombre}</p>
+                <p className="text-xs text-indigo-900 font-medium bg-indigo-50 px-2 py-0.5 rounded-md mt-1 inline-block">
+                  🎓 Ingeniería de {anuncio.autor.carrera}
+                </p>
+              </div>
+              
+              {/* Bloque explicativo de experiencia de usuario */}
+              <div className="text-right max-w-[200px]">
+                <p className="text-xs text-gray-500 font-medium leading-tight">
+                  💬 Para negociar con {anuncio.autor.nombre}, usa la burbuja de chat abajo a la derecha.
+                </p>
+              </div>
             </div>
-
-            {/* 🚀 BOTÓN INTERACTIVO INTEGRADO: Reemplaza la caja fija anterior */}
-            <button
-              onClick={handleContactarVendedor}
-              className="bg-amber-500 hover:bg-amber-400 text-indigo-950 font-extrabold px-4 py-2.5 rounded-xl shadow-sm transition-all transform active:scale-95 text-xs text-center cursor-pointer flex items-center gap-1.5"
-            >
-              💬 Contactar
-            </button>
           </div>
 
         </div>
       </div>
+
+      {/* =======================================================================
+          🔥 INYECCIÓN DINÁMICA DEL WIDGET DE CHAT (MÓDULO 5)
+          Pasamos el objeto 'anuncio' completo como propiedad. Al cambiar de página,
+          el useEffect de Chatwoot actualizará las etiquetas en vivo con la data real.
+          ======================================================================= */}
+      <ChatwootWidget productoActual={anuncio} />
     </div>
   );
 };
