@@ -46,7 +46,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Mis favoritos */}
       <div>
         <h2 className="text-lg font-black text-gray-900 mb-4">❤️ Mis favoritos</h2>
 
@@ -81,7 +80,6 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Mis publicaciones */}
       <div>
         <h2 className="text-lg font-black text-gray-900 mb-4">Mis publicaciones</h2>
 

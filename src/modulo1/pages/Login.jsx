@@ -20,10 +20,9 @@ const Login = ({ setIsLoggedIn }) => {
       return;
     }
 
-    // Validación directa usando los mocks de base de datos en memoria
     if (email.trim() === "juan@universidad.edu.pe" && password.trim() === "u_001") {
-      setIsLoggedIn(true); // Desbloquea el Navbar global en App.jsx
-      navigate("/");       // Redirige al Feed Principal
+      setIsLoggedIn(true); 
+      navigate("/");       
     } else {
       setError("Correo universitario o ID de estudiante incorrectos");
     }

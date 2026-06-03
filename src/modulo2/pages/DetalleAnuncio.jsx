@@ -1,14 +1,12 @@
 import { useParams, Link } from 'react-router-dom';
 import { mockAnuncios } from '../../data/mocks';
-import ChatwootWidget from '../../components/ChatwootWidget'; // Importamos el componente del Módulo 5
+import ChatwootWidget from '../../components/ChatwootWidget'; 
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
   
-  // Buscamos el anuncio específico en nuestros mocks en memoria usando el ID de la URL
   const anuncio = mockAnuncios.find((item) => item.id === parseInt(id));
 
-  // Control de seguridad por si el estudiante manipula la URL manual con un ID inexistente
   if (!anuncio) {
     return (
       <div className="text-center py-12">
@@ -23,17 +21,14 @@ const DetalleAnuncio = () => {
 
   return (
     <div className="max-w-5xl mx-auto py-6">
-      {/* Botón de retorno al catálogo principal */}
       <div className="mb-6">
         <Link to="/" className="inline-flex items-center text-sm font-bold text-indigo-900 hover:text-amber-600 transition-colors gap-2">
           ⬅️ Volver al catálogo
         </Link>
       </div>
 
-      {/* Contenedor Principal de la Ficha del Producto */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden grid md:grid-cols-2 gap-8 p-6 sm:p-8">
         
-        {/* Columna Izquierda: Imagen del Artículo */}
         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
           <img 
             src={anuncio.imagen} 
@@ -45,10 +40,8 @@ const DetalleAnuncio = () => {
           </span>
         </div>
 
-        {/* Columna Derecha: Información de Venta y Metadatos */}
         <div className="flex flex-col justify-between">
           <div>
-            {/* Cabecera, Título y Sistema de Calificación */}
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
               <span>Publicado el {anuncio.fechaPublicacion}</span>
               <span>•</span>
@@ -59,7 +52,6 @@ const DetalleAnuncio = () => {
               {anuncio.titulo}
             </h1>
 
-            {/* Precio formateado con estilos de alta visibilidad */}
             <div className="mt-4 text-2xl font-black text-indigo-950">
               {anuncio.precio === 0 ? (
                 <span className="text-emerald-600 uppercase tracking-wide bg-emerald-50 px-3 py-1 rounded-lg text-lg">Gratis / Regalo</span>
@@ -70,7 +62,6 @@ const DetalleAnuncio = () => {
 
             <hr className="my-6 border-gray-100" />
 
-            {/* Descripción del Producto */}
             <div className="space-y-2">
               <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400">Descripción del artículo</h3>
               <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
@@ -79,7 +70,6 @@ const DetalleAnuncio = () => {
             </div>
           </div>
 
-          {/* Caja Informativa del Vendedor Universitario */}
           <div className="mt-8 bg-gray-50 rounded-xl p-4 border border-gray-100">
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Información del vendedor</h3>
             <div className="flex items-center justify-between">
@@ -90,7 +80,6 @@ const DetalleAnuncio = () => {
                 </p>
               </div>
               
-              {/* Bloque explicativo de experiencia de usuario */}
               <div className="text-right max-w-[200px]">
                 <p className="text-xs text-gray-500 font-medium leading-tight">
                   💬 Para negociar con {anuncio.autor.nombre}, usa la burbuja de chat abajo a la derecha.
@@ -102,11 +91,6 @@ const DetalleAnuncio = () => {
         </div>
       </div>
 
-      {/* =======================================================================
-          🔥 INYECCIÓN SEGURA DEL WIDGET DE CHAT (MÓDULO 5)
-          Invocamos el componente de manera global y estática para garantizar un
-          renderizado estable, óptimo y libre de efectos secundarios en la consola.
-          ======================================================================= */}
       <ChatwootWidget />
     </div>
   );

@@ -2,21 +2,18 @@ import { useEffect } from 'react';
 
 const ChatwootWidget = () => {
     useEffect(() => {
-        // Evita duplicar el script si el componente se vuelve a renderizar
         if (window.chatwootSettings) return;
 
         window.chatwootSettings = {
             hideMessageBubble: false,
-            position: 'right', // Mantiene la burbuja abajo a la derecha
-            locale: 'es',      // Fuerza el idioma a español
-            type: 'expanded',  // Puede ser 'standard' o 'expanded'
-            darkMode: 'auto',  // Se adapta si el usuario usa modo oscuro en su navegador
+            position: 'right', 
+            locale: 'es',      
+            type: 'expanded',  
+            darkMode: 'auto',  
 
-            // 🔥 ESTILOS PERSONALIZADOS PARA UNIMARKET:
-            theme: 'neon', // Cambia el estilo visual (opciones: 'light', 'neon')
+            theme: 'neon', 
 
-            // Launcher (La burbuja flotante antes de abrirse)
-            launcherTitle: 'Contactar al vendedor', // Texto que sale al pasar el mouse
+            launcherTitle: 'Contactar al vendedor', 
         };
 
         (function (d, t) {
@@ -27,7 +24,7 @@ const ChatwootWidget = () => {
             s.parentNode.insertBefore(g, s);
             g.onload = function () {
                 window.chatwootSDK.run({
-                    websiteToken: 'E8rcDiac5UiQ5DKqHgzEgro1', // Tu token real inyectado
+                    websiteToken: 'E8rcDiac5UiQ5DKqHgzEgro1', 
                     baseUrl: BASE_URL
                 })
 
@@ -35,14 +32,14 @@ const ChatwootWidget = () => {
                     window.$chatwoot.setCustomAttributes({
                         producto_interes: productoActual.titulo,
                         precio_producto: productoActual.precio,
-                        id_vendedor: productoActual.vendedorId // Vincula al dueño del producto
+                        id_vendedor: productoActual.vendedorId 
                     });
                 }
             }
             })(document, "script");
     }, []);
 
-    return null; // No renderiza HTML directo, levanta el widget flotante de Chatwoot
+    return null; 
 };
 
 export default ChatwootWidget;

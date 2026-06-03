@@ -4,10 +4,8 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
-  // Estado global del usuario
   const [user, setUser] = useState(null);
 
-  // Cargar sesión guardada
   useEffect(() => {
 
     const currentUser = JSON.parse(
@@ -20,13 +18,11 @@ export const AuthProvider = ({ children }) => {
 
   }, []);
 
-  // REGISTER
   const register = (newUser) => {
 
     const users =
       JSON.parse(localStorage.getItem("users")) || [];
 
-    // Verificar si ya existe
     const userExists = users.find(
       user => user.email === newUser.email
     );
@@ -35,7 +31,6 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
 
-    // Guardar nuevo usuario
     users.push(newUser);
 
     localStorage.setItem(
@@ -46,7 +41,6 @@ export const AuthProvider = ({ children }) => {
     return true;
   };
 
-  // LOGIN
   const login = (email, password) => {
 
     const users =
@@ -62,19 +56,16 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
 
-    // Guardar sesión
     localStorage.setItem(
       "currentUser",
       JSON.stringify(foundUser)
     );
 
-    // Actualizar estado global
     setUser(foundUser);
 
     return true;
   };
 
-  // LOGOUT
   const logout = () => {
 
     localStorage.removeItem("currentUser");

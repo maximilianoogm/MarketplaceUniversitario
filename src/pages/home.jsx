@@ -5,15 +5,12 @@ export default function Home() {
   const [anuncios, setAnuncios] = useState([]);
 
   useEffect(() => {
-    // Leemos todas las publicaciones que has creado
     const guardadas = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
-    // Las ordenamos para que las más nuevas salgan primero
     setAnuncios(guardadas.reverse());
   }, []);
 
   return (
     <div className="space-y-12">
-      {/* SECCIÓN HERO (Bienvenida) */}
       <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-8 md:p-12 text-center shadow-xl text-white">
         <h1 className="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">
           Marketplace Universitario G3
@@ -26,7 +23,6 @@ export default function Home() {
         </Link>
       </div>
 
-      {/* SECCIÓN: ÚLTIMAS PUBLICACIONES */}
       <div>
         <h2 className="text-2xl font-bold text-slate-800 mb-6">🔥 Últimos Anuncios Agregados</h2>
         

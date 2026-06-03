@@ -34,7 +34,6 @@ const TarjetaAnuncio = ({ anuncio }) => {
             </span>
           </div>
 
-          {/* El botón "Ver más" original se queda solo para llevar a la vista interna */}
           <Link 
             to={`/detalle/${anuncio.id}`}
             className="bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shadow-xs"
@@ -47,7 +46,6 @@ const TarjetaAnuncio = ({ anuncio }) => {
   );
 };
 
-// COMPONENTE PRINCIPAL ESTÁNDAR
 const FeedPrincipal = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
   const categorias = ["Todos", "Apuntes", "Libros", "Servicios", "Otros"];

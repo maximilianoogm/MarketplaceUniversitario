@@ -1,40 +1,31 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-// 1. IMPORTAMOS LOS MOCKS (Ajusta la ruta según dónde esté tu archivo dataMocks.js)
 import { mockAnuncios, mockUsuarioActual } from '../../data/mocks';
 
 export default function MyPosts() {
   const [misPublicaciones, setMisPublicaciones] = useState([]);
 
-  // ========================================================================
-  // SEMANA 7: Persistencia (localStorage) + SEMANA 3: Método filter()
-  // ========================================================================
+
   useEffect(() => {
-    // Leemos la base de datos local. Si no existe, usamos el MOCK completo como base.
     const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones'));
     const datosCargados = baseDeDatosLocal && baseDeDatosLocal.length > 0 ? baseDeDatosLocal : mockAnuncios;
 
-    // Si usamos el mock por primera vez, lo guardamos en el localStorage
     if (!baseDeDatosLocal) {
       localStorage.setItem('g3_publicaciones', JSON.stringify(mockAnuncios));
     }
 
-    // Filtramos para mostrar SOLO los anuncios del usuario logueado (Juan)
     const misAnunciosFiltrados = datosCargados.filter(post => post.autor.idAutor === mockUsuarioActual.id);
     setMisPublicaciones(misAnunciosFiltrados);
   }, []);
 
-  // === LA LÓGICA DE ELIMINAR (DELETE) RESPETANDO INMUTABILIDAD ===
   const handleDelete = (idParaBorrar) => {
     const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este anuncio?");
     
     if (confirmar) {
-      // 1. Actualizamos la pantalla: filtramos la lista actual y la guardamos en el estado
       const listaActualizadaVista = misPublicaciones.filter(post => String(post.id) !== String(idParaBorrar));
       setMisPublicaciones(listaActualizadaVista);
       
-      // 2. Actualizamos la base de datos (localStorage): borramos el anuncio de la base total
       const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones')) || mockAnuncios;
       const nuevaBaseDeDatos = baseDeDatosLocal.filter(post => String(post.id) !== String(idParaBorrar));
       localStorage.setItem('g3_publicaciones', JSON.stringify(nuevaBaseDeDatos));
@@ -56,7 +47,6 @@ export default function MyPosts() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* SEMANA 3: Renderizado de listas con map() */}
           {misPublicaciones.map((post) => (
             <div key={post.id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 flex flex-col">
               

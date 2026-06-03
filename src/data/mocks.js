@@ -1,5 +1,3 @@
-// src/data/mocks.js
-
 export const mockAnuncios = [
   {
     id: 1,
@@ -15,7 +13,6 @@ export const mockAnuncios = [
       carrera: "Sistemas" 
     },
     fechaPublicacion: "2026-05-20",
-    //ID del vendedor de prueba para chatwoot
     vendedorId: "20231889"
   },
   {
@@ -32,7 +29,6 @@ export const mockAnuncios = [
       carrera: "Sistemas" 
     },
     fechaPublicacion: "2026-05-21",
-    //ID del vendedor de prueba para chatwoot
     vendedorId: "20231889"
   },
   {
@@ -49,7 +45,6 @@ export const mockAnuncios = [
       carrera: "Electrónica" 
     },
     fechaPublicacion: "2026-05-22",
-    //ID del vendedor de prueba para chatwoot
     vendedorId: "20231889"
   },
   {
@@ -66,7 +61,6 @@ export const mockAnuncios = [
       carrera: "Industrial" 
     },
     fechaPublicacion: "2026-05-23",
-    //ID del vendedor de prueba para chatwoot
     vendedorId: "20231889"
   },
   {
@@ -83,7 +77,6 @@ export const mockAnuncios = [
       carrera: "Sistemas" 
     },
     fechaPublicacion: "2026-05-24",
-    //ID del vendedor de prueba para chatwoot
     vendedorId: "20231889"
   },
   {

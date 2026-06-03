@@ -1,42 +1,35 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 
-// IMPORTACIONES DE TUS COMPAÑEROS
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
 import DetalleAnuncio from './modulo2/pages/DetalleAnuncio'; 
 import Dashboard from './modulo4/pages/Dashboard';
 
-// IMPORTACIONES DE TU MÓDULO 3
 import PostForm from './modulo3/components/PostForm';
 import EditPost from './modulo3/pages/EditPost';
 import MyPosts from './modulo3/pages/MyPosts';
 import ChatwootWidget from './components/ChatwootWidget';
 
 function App() {
-  // Compartimos el estado de autenticación de forma real
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 text-gray-800">
         
-        {/* ================= NAVBAR CONDICIONAL GLOBAL ================= */}
-        {/* Si NO está logueado, NO se renderiza el Navbar, evitando incoherencias */}
         {isLoggedIn && (
           <nav className="bg-indigo-900 text-white sticky top-0 z-50 shadow-md">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex items-center justify-between h-16">
                 
-                {/* Logo */}
                 <div className="flex-shrink-0">
                   <Link to="/" className="text-xl font-black tracking-tight hover:text-amber-400 transition-colors">
                     🎓 Uni<span className="text-amber-400">Market</span>
                   </Link>
                 </div>
 
-                {/* Barra de Búsqueda */}
                 <div className="hidden md:block flex-1 max-w-md mx-8">
                   <div className="relative">
                     <input 
@@ -48,7 +41,6 @@ function App() {
                   </div>
                 </div>
 
-                {/* Botones de Navegación del Navbar */}
                 <div className="flex items-center space-x-2 md:space-x-4">
                   <Link to="/" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
                     🏠 <span>Inicio</span>
@@ -79,19 +71,15 @@ function App() {
           </nav>
         )}
 
-        {/* CONTENEDOR CENTRAL DE LAS PÁGINAS */}
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>
-            {/* Rutas de autenticación pública */}
             <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
             <Route path="/registro" element={isLoggedIn ? <Navigate to="/" /> : <Register />} />
             
-            {/* Rutas protegidas: Redirigen a /login si no hay sesión iniciada */}
             <Route path="/" element={isLoggedIn ? <FeedPrincipal /> : <Navigate to="/login" />} />
             <Route path="/detalle/:id" element={isLoggedIn ? <DetalleAnuncio /> : <Navigate to="/login" />} />
             <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />} />
             
-            {/* MÓDULO 3 */}
             <Route path="/publicar" element={isLoggedIn ? <PostForm /> : <Navigate to="/login" />} />
             <Route path="/editar/:id" element={isLoggedIn ? <EditPost /> : <Navigate to="/login" />} />
             <Route path="/mis-articulos" element={isLoggedIn ? <MyPosts /> : <Navigate to="/login" />} />
@@ -99,7 +87,6 @@ function App() {
         </main>
       </div>
 
-      {/* El chat flotante solo se activa para usuarios logueados */}
       {isLoggedIn && <ChatwootWidget/>}
     </BrowserRouter>
   );

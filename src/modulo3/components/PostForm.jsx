@@ -39,21 +39,17 @@ export default function PostForm({ initialData, isEditing = false }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Simulación de usuario logueado (Mock frontend)
     const usuarioSimulado = { id: "u_001", nombre: "Juan", carrera: "Sistemas" };
     
-    // Traemos la lista segura del Grupo 3 desde el LocalStorage
     const publicacionesGuardadas = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
 
     if (isEditing) {
-      // === ACTUALIZAR ===
       const listaActualizada = publicacionesGuardadas.map((post) => 
         String(post.id) === String(initialData.id) ? { ...post, ...postData, imagenes } : post
       );
       localStorage.setItem('g3_publicaciones', JSON.stringify(listaActualizada));
       alert('¡Publicación actualizada con éxito!');
     } else {
-      // === CREAR ===
       const nuevaPublicacion = {
         id: Date.now(), 
         tipo: postData.categoria,
