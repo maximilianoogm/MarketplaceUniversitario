@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { mockAnuncios, mockUsuarioActual } from "../../data/mocks";
 
+// ==========================================
+// OPTIMIZACIÓN: TarjetaAnuncio extraída al nivel de módulo externo
+// ==========================================
 const TarjetaAnuncio = ({ anuncio }) => {
   const [esFavorito, setEsFavorito] = useState(
     mockUsuarioActual.favoritos.includes(anuncio.id)
@@ -21,7 +24,10 @@ const TarjetaAnuncio = ({ anuncio }) => {
 
       <div className="p-4 flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex items-center gap-1 text-xs text-amber-500 font-semibold mb-1"><span>⭐</span> {anuncio.rating.toFixed(1)}</div>
+          {/* Si el rating no viene definido en los posts creados, le damos 5.0 por defecto */}
+          <div className="flex items-center gap-1 text-xs text-amber-500 font-semibold mb-1">
+            <span>⭐</span> {(anuncio.rating ?? 5.0).toFixed(1)}
+          </div>
           <h4 className="font-bold text-gray-950 text-base line-clamp-1 group-hover:text-indigo-900 transition-colors">{anuncio.titulo}</h4>
           <p className="text-gray-500 text-xs mt-1.5 line-clamp-2 leading-relaxed">{anuncio.descripcion}</p>
         </div>
@@ -30,7 +36,7 @@ const TarjetaAnuncio = ({ anuncio }) => {
           <div>
             <span className="text-xs text-gray-400 block font-medium">Precio</span>
             <span className="text-lg font-black text-gray-900">
-              {anuncio.precio === 0 ? <span className="text-emerald-600 font-bold text-sm bg-emerald-50 px-2 py-0.5 rounded-md">Gratis</span> : `S/. ${anuncio.precio.toFixed(2)}`}
+              {anuncio.precio === 0 ? <span className="text-emerald-600 font-bold text-sm bg-emerald-50 px-2 py-0.5 rounded-md">Gratis</span> : `S/. ${Number(anuncio.precio).toFixed(2)}`}
             </span>
           </div>
 
@@ -46,13 +52,23 @@ const TarjetaAnuncio = ({ anuncio }) => {
   );
 };
 
+// ==========================================
+// COMPONENTE PRINCIPAL
+// ==========================================
 const FeedPrincipal = () => {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
-  const categorias = ["Todos", "Apuntes", "Libros", "Servicios", "Otros"];
+  const gridCategorias = ["Todos", "Apuntes", "Libros", "Servicios", "Otros"];
 
+  // 1. RECOMENDACIÓN P2: Unificamos los anuncios de mocks con los de localStorage
+  const publicacionesGuardadas = JSON.parse(localStorage.getItem("g3_publicaciones")) || [];
+  const todoElInventario = [...publicacionesGuardadas, ...mockAnuncios];
+
+  // 2. CORRECCIÓN MEDIO: Hacemos el filtro robusto comparando strings completos
   const anunciosFiltrados = categoriaSeleccionada === "Todos"
-    ? mockAnuncios
-    : mockAnuncios.filter(anuncio => anuncio.tipo.toLowerCase().startsWith(categoriaSeleccionada.toLowerCase().substring(0, 4)));
+    ? todoElInventario
+    : todoElInventario.filter(anuncio => 
+        anuncio.tipo.toLowerCase() === categoriaSeleccionada.toLowerCase()
+      );
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -61,7 +77,7 @@ const FeedPrincipal = () => {
           <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><span>⚙️</span> Filtrar por</h3>
           <hr className="border-gray-100 mb-4" />
           <div className="space-y-1">
-            {categorias.map((cat) => (
+            {gridCategorias.map((cat) => (
               <button key={cat} onClick={() => setCategoriaSeleccionada(cat)} className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${categoriaSeleccionada === cat ? "bg-indigo-50 text-indigo-900 font-bold" : "text-gray-600 hover:bg-gray-50"}`}>{cat}</button>
             ))}
           </div>

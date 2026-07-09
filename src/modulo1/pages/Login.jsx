@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useContext } from "react"; // 1. Agregamos useContext de React
 import { Link, useNavigate } from "react-router-dom";
+// 2. Importamos AuthContext con llaves y la ruta exacta relativa
+import { AuthContext } from "../context/AuthContext"; 
 
 const loginHeroImage =
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80";
@@ -10,6 +12,9 @@ const Login = ({ setIsLoggedIn }) => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  
+  // 3. Consumimos el AuthContext usando el método oficial de React
+  const { login } = useContext(AuthContext);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -20,11 +25,15 @@ const Login = ({ setIsLoggedIn }) => {
       return;
     }
 
-    if (email.trim() === "juan@universidad.edu.pe" && password.trim() === "u_001") {
+    // 3. REMPLAZADO: Ya no validamos contra "juan" hardcodeado. 
+    // Ahora llamamos a la función global que busca en localStorage["users"]
+    const esValido = login(email.trim(), password.trim());
+
+    if (esValido) {
       setIsLoggedIn(true); 
       navigate("/");       
     } else {
-      setError("Correo universitario o ID de estudiante incorrectos");
+      setError("Correo universitario o contraseña incorrectos");
     }
   };
 
@@ -38,10 +47,8 @@ const Login = ({ setIsLoggedIn }) => {
 
           <aside className="bg-indigo-900 p-8 text-white sm:p-10 flex flex-col justify-between gap-8">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-amber-400">
-                Módulo 1
-              </p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight">
+              {/* CORRECCIÓN LEVE: Eliminamos el texto "Módulo 1" que salía en producción */}
+              <h1 className="text-4xl font-black tracking-tight">
                 Vuelve a <span className="text-amber-400">UniMarket</span>
               </h1>
               <p className="mt-4 text-sm leading-6 text-indigo-100">
@@ -111,12 +118,12 @@ const Login = ({ setIsLoggedIn }) => {
 
                 <div>
                   <label htmlFor="login-password" className="mb-2 block text-sm font-bold text-gray-800">
-                    Contraseña (ID Estudiante)
+                    Contraseña
                   </label>
                   <input
                     id="login-password"
                     type="password"
-                    placeholder="Ingresa tu ID (ej: u_001)"
+                    placeholder="Ingresa tu contraseña"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={inputClass}

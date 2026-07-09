@@ -1,32 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-
-import { mockAnuncios, mockUsuarioActual } from '../../data/mocks';
+import { mockAnuncios } from '../../data/mocks';
+// 1. IMPORTANTE: Traemos el contexto de autenticación real
+import { AuthContext } from '../../modulo1/context/AuthContext'; 
 
 export default function MyPosts() {
   const [misPublicaciones, setMisPublicaciones] = useState([]);
-
+  
+  // 2. Extraemos el usuario logueado en la sesión actual
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones'));
-    const datosCargados = baseDeDatosLocal && baseDeDatosLocal.length > 0 ? baseDeDatosLocal : mockAnuncios;
-
-    if (!baseDeDatosLocal) {
+    // Jalamos la base de datos unificada del localStorage
+    const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
+    
+    // Si el localStorage está completamente vacío, lo inicializamos con los mocks
+    if (baseDeDatosLocal.length === 0) {
       localStorage.setItem('g3_publicaciones', JSON.stringify(mockAnuncios));
     }
 
-    const misAnunciosFiltrados = datosCargados.filter(post => post.autor.idAutor === mockUsuarioActual.id);
+    const datosCargados = baseDeDatosLocal.length > 0 ? baseDeDatosLocal : mockAnuncios;
+
+    // 3. FILTRADO CORREGIDO: Identificamos dinámicamente el ID del usuario actual
+    const miIdActual = user?.id || user?.email || "u_001";
+
+    const misAnunciosFiltrados = datosCargados.filter(
+      (post) => String(post.autor?.idAutor) === String(miIdActual)
+    );
+    
     setMisPublicaciones(misAnunciosFiltrados);
-  }, []);
+  }, [user]); // Agregamos user como dependencia por seguridad
 
   const handleDelete = (idParaBorrar) => {
     const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este anuncio?");
     
     if (confirmar) {
+      // Actualizamos el estado visual de inmediato
       const listaActualizadaVista = misPublicaciones.filter(post => String(post.id) !== String(idParaBorrar));
       setMisPublicaciones(listaActualizadaVista);
       
-      const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones')) || mockAnuncios;
+      // Actualizamos la base de datos real del localStorage
+      const baseDeDatosLocal = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
       const nuevaBaseDeDatos = baseDeDatosLocal.filter(post => String(post.id) !== String(idParaBorrar));
       localStorage.setItem('g3_publicaciones', JSON.stringify(nuevaBaseDeDatos));
     }

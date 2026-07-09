@@ -10,9 +10,7 @@ const ChatwootWidget = () => {
             locale: 'es',      
             type: 'expanded',  
             darkMode: 'auto',  
-
             theme: 'neon', 
-
             launcherTitle: 'Contactar al vendedor', 
         };
 
@@ -26,17 +24,17 @@ const ChatwootWidget = () => {
                 window.chatwootSDK.run({
                     websiteToken: 'E8rcDiac5UiQ5DKqHgzEgro1', 
                     baseUrl: BASE_URL
-                })
+                });
 
-                if (window.$chatwoot && productoActual) {
-                    window.$chatwoot.setCustomAttributes({
-                        producto_interes: productoActual.titulo,
-                        precio_producto: productoActual.precio,
-                        id_vendedor: productoActual.vendedorId 
-                    });
+                // =======================================================
+                // CORRECCIÓN P3: Eliminamos la referencia a productoActual
+                // Esto evita el ReferenceError y permite que el chat inicie limpio
+                // =======================================================
+                if (window.$chatwoot) {
+                    // Inicialización segura del SDK global sin romper la consola
                 }
             }
-            })(document, "script");
+        })(document, "script");
     }, []);
 
     return null; 

@@ -5,7 +5,11 @@ import ChatwootWidget from '../../components/ChatwootWidget';
 const DetalleAnuncio = () => {
   const { id } = useParams();
   
-  const anuncio = mockAnuncios.find((item) => item.id === parseInt(id));
+  const publicacionesGuardadas = JSON.parse(localStorage.getItem("g3_publicaciones")) || [];
+  const todoElInventario = [...publicacionesGuardadas, ...mockAnuncios];
+
+  // Ahora buscamos en todo el inventario, no solo en los mocks
+  const anuncio = todoElInventario.find((item) => item.id === parseInt(id));
 
   if (!anuncio) {
     return (
