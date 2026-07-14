@@ -1,17 +1,36 @@
 import { useEffect } from 'react';
 
-const ChatwootWidget = () => {
+// Recibe los datos del producto/vendedor actual para enlazar la conversación
+// con el vendedor exacto de ese anuncio (se distingue por vendedorId).
+const ChatwootWidget = ({ vendedorId, productoId, productoTitulo }) => {
+
+    // Le dice a Chatwoot con quién y sobre qué producto es la conversación
+    const identificarVendedor = () => {
+        if (window.$chatwoot) {
+            window.$chatwoot.setConversationCustomAttributes({
+                vendedorId: String(vendedorId ?? ""),
+                productoId: String(productoId ?? ""),
+                producto: productoTitulo ?? "",
+            });
+        }
+    };
+
     useEffect(() => {
-        if (window.chatwootSettings) return;
+        // Si el script de Chatwoot ya fue cargado antes (el usuario navegó
+        // de un producto a otro), solo actualizamos los datos del vendedor.
+        if (window.chatwootSDK) {
+            identificarVendedor();
+            return;
+        }
 
         window.chatwootSettings = {
             hideMessageBubble: false,
-            position: 'right', 
-            locale: 'es',      
-            type: 'expanded',  
-            darkMode: 'auto',  
-            theme: 'neon', 
-            launcherTitle: 'Contactar al vendedor', 
+            position: 'right',
+            locale: 'es',
+            type: 'expanded',
+            darkMode: 'auto',
+            theme: 'neon',
+            launcherTitle: 'Contactar al vendedor',
         };
 
         (function (d, t) {
@@ -22,22 +41,19 @@ const ChatwootWidget = () => {
             s.parentNode.insertBefore(g, s);
             g.onload = function () {
                 window.chatwootSDK.run({
-                    websiteToken: 'E8rcDiac5UiQ5DKqHgzEgro1', 
+                    websiteToken: 'E8rcDiac5UiQ5DKqHgzEgro1',
                     baseUrl: BASE_URL
                 });
-
-                // =======================================================
-                // CORRECCIÓN P3: Eliminamos la referencia a productoActual
-                // Esto evita el ReferenceError y permite que el chat inicie limpio
-                // =======================================================
-                if (window.$chatwoot) {
-                    // Inicialización segura del SDK global sin romper la consola
-                }
             }
         })(document, "script");
-    }, []);
 
-    return null; 
+        // Chatwoot dispara este evento cuando el widget ya terminó de cargar
+        window.addEventListener("chatwoot:ready", identificarVendedor);
+
+        return () => window.removeEventListener("chatwoot:ready", identificarVendedor);
+    }, [vendedorId, productoId, productoTitulo]);
+
+    return null;
 };
 
 export default ChatwootWidget;

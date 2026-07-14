@@ -1,17 +1,58 @@
 import { useParams, Link } from 'react-router-dom';
-import { mockAnuncios } from '../../data/mocks';
-import ChatwootWidget from '../../components/ChatwootWidget'; 
+import { useState, useEffect } from 'react';
+import ChatwootWidget from '../../components/ChatwootWidget';
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
-  
-  const publicacionesGuardadas = JSON.parse(localStorage.getItem("g3_publicaciones")) || [];
-  const todoElInventario = [...publicacionesGuardadas, ...mockAnuncios];
+  const [anuncio, setAnuncio] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Ahora buscamos en todo el inventario, no solo en los mocks
-  const anuncio = todoElInventario.find((item) => item.id === parseInt(id));
+  useEffect(() => {
+    const cargarAnuncio = async () => {
+      try {
+        setCargando(true);
+        const respuesta = await fetch(`http://localhost:3000/products/${id}`);
+        if (!respuesta.ok) throw new Error("No se encontró el producto");
+        const data = await respuesta.json();
+        setAnuncio(data);
+        setError(null);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setCargando(false);
+      }
+    };
 
-  if (!anuncio) {
+    cargarAnuncio();
+  }, [id]);
+
+  const contactarVendedor = () => {
+    if (!window.$chatwoot) return;
+
+    const ultimoVendedor = window.localStorage.getItem("ultimoVendedorChat");
+
+    // Si el chat abierto es de OTRO vendedor, reseteamos la conversación
+    // para no mezclar mensajes de distintos vendedores en el mismo hilo.
+    if (ultimoVendedor && ultimoVendedor !== String(anuncio.autorId)) {
+      window.$chatwoot.reset();
+    }
+
+    window.localStorage.setItem("ultimoVendedorChat", String(anuncio.autorId));
+
+    window.$chatwoot.toggle('open');
+    window.$chatwoot.setConversationCustomAttributes({
+      vendedorId: String(anuncio.autorId),
+      productoId: String(anuncio.id),
+    });
+  };
+
+  if (cargando) {
+    return <p className="text-center text-gray-500 py-12">Cargando...</p>;
+  }
+
+  if (error || !anuncio) {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-black text-gray-900">Anuncio no encontrado</h2>
@@ -32,15 +73,15 @@ const DetalleAnuncio = () => {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden grid md:grid-cols-2 gap-8 p-6 sm:p-8">
-        
+
         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
-          <img 
-            src={anuncio.imagen} 
-            alt={anuncio.titulo} 
+          <img
+            src={anuncio.imagen}
+            alt={anuncio.titulo}
             className="w-full h-full object-cover"
           />
           <span className="absolute top-4 left-4 bg-indigo-900 text-white text-xs font-extrabold uppercase px-3 py-1.5 rounded-full shadow-sm">
-            {anuncio.tipo}
+            {anuncio.categoria?.name}
           </span>
         </div>
 
@@ -51,7 +92,7 @@ const DetalleAnuncio = () => {
               <span>•</span>
               <span className="text-amber-500 font-bold">⭐ {anuncio.rating}</span>
             </div>
-            
+
             <h1 className="text-3xl font-black text-gray-950 tracking-tight leading-tight">
               {anuncio.titulo}
             </h1>
@@ -78,16 +119,19 @@ const DetalleAnuncio = () => {
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Información del vendedor</h3>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-black text-gray-950 text-base">{anuncio.autor.nombre}</p>
+                <p className="font-black text-gray-950 text-base">{anuncio.autor?.nombre}</p>
                 <p className="text-xs text-indigo-900 font-medium bg-indigo-50 px-2 py-0.5 rounded-md mt-1 inline-block">
-                  🎓 Ingeniería de {anuncio.autor.carrera}
+                  🎓 Ingeniería de {anuncio.autor?.carrera}
                 </p>
               </div>
-              
+
               <div className="text-right max-w-[200px]">
-                <p className="text-xs text-gray-500 font-medium leading-tight">
-                  💬 Para negociar con {anuncio.autor.nombre}, usa la burbuja de chat abajo a la derecha.
-                </p>
+                <button
+                  onClick={contactarVendedor}
+                  className="bg-indigo-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors cursor-pointer"
+                >
+                  💬 Contactar al vendedor
+                </button>
               </div>
             </div>
           </div>
@@ -95,7 +139,11 @@ const DetalleAnuncio = () => {
         </div>
       </div>
 
-      <ChatwootWidget />
+      <ChatwootWidget
+        vendedorId={anuncio.autorId}
+        productoId={anuncio.id}
+        productoTitulo={anuncio.titulo}
+      />
     </div>
   );
 };
