@@ -7,6 +7,34 @@ import useFetch from '../../hooks/useFetch';
    ══════════════════════════════════════════ */
 const API_URL = "http://localhost:3000";
 
+// ==========================================
+// FUNCIÓN SELECTORA DE IMÁGENES TEMÁTICAS
+// ==========================================
+const obtenerImagenCategoria = (producto) => {
+  // Si el producto ya tiene una imagen válida que no sea un placeholder roto, la usamos
+  if (producto.imagen && producto.imagen.startsWith("http") && !producto.imagen.includes("placeholder")) {
+    return producto.imagen;
+  }
+
+  const categoria = producto.categoria?.name?.toLowerCase() || "";
+
+  if (categoria.includes("libro")) {
+    return "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("copia") || categoria.includes("impresion") || categoria.includes("apuntes y copias")) {
+    return "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("apunte") || categoria.includes("resumen")) {
+    return "https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("laboratorio") || categoria.includes("herramienta") || categoria.includes("material")) {
+    return "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80";
+  }
+
+  // Imagen genérica de UniMarket por defecto
+  return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80";
+};
+
 const DetalleAnuncio = () => {
   const { id } = useParams();
 
@@ -60,8 +88,9 @@ const DetalleAnuncio = () => {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden grid md:grid-cols-2 gap-8 p-6 sm:p-8">
 
         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
+          {/* AQUÍ SE USA LA NUEVA FUNCIÓN SELECTORA */}
           <img
-            src={anuncio.imagen}
+            src={obtenerImagenCategoria(anuncio)}
             alt={anuncio.titulo}
             className="w-full h-full object-cover"
           />

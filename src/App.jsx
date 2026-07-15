@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import Login from './modulo1/pages/Login';
 import Register from './modulo1/pages/Register';
@@ -15,9 +15,93 @@ import EditPost from './modulo3/pages/EditPost';
 import MyPosts from './modulo3/pages/MyPosts';
 import ChatwootWidget from './components/ChatwootWidget';
 
+// ══════════════════════════════════════════
+// SUBCOMPONENTE DE NAVEGACIÓN (HEADER)
+// ══════════════════════════════════════════
+function HeaderNavbar({ logout }) {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  // Guardamos el estado local de lo que escribe el usuario
+  const [textoBusqueda, setTextoBusqueda] = useState(searchParams.get("search") || "");
+
+  // Si la búsqueda se limpia desde fuera (ej. el botón limpiar del feed), sincronizamos la barra
+  useEffect(() => {
+    setTextoBusqueda(searchParams.get("search") || "");
+  }, [searchParams]);
+
+  const manejarCambioBusqueda = (e) => {
+    const valor = e.target.value;
+    setTextoBusqueda(valor);
+
+    // Al escribir, empujamos el valor al parámetro de la URL
+    if (valor.trim() === "") {
+      navigate("/"); // Si borra todo, limpia la URL
+    } else {
+      navigate(`/?search=${encodeURIComponent(valor)}`);
+    }
+  };
+
+  return (
+    <nav className="bg-indigo-900 text-white sticky top-0 z-50 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+
+          <div className="flex-shrink-0">
+            <Link to="/" className="text-xl font-black tracking-tight hover:text-amber-400 transition-colors">
+              🎓 Uni<span className="text-amber-400">Market</span>
+            </Link>
+          </div>
+
+          {/* Barra de búsqueda integrada y funcional */}
+          <div className="hidden md:block flex-1 max-w-md mx-8">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar libros, apuntes, servicios..."
+                value={textoBusqueda}
+                onChange={manejarCambioBusqueda}
+                className="w-full bg-white text-gray-900 pl-4 pr-10 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm"
+              />
+              <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 md:space-x-4">
+            <Link to="/" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+              🏠 <span>Inicio</span>
+            </Link>
+
+            <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+              ➕ <span className="ml-0.5">Publicar</span>
+            </Link>
+
+            <Link to="/mis-articulos" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+              📦 <span className="hidden sm:inline">Mis Artículos</span>
+            </Link>
+
+            <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
+              👤 <span>Mi Perfil</span>
+            </Link>
+
+            <button
+              onClick={logout}
+              className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95"
+            >
+              🚪 Salir
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+// ══════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ══════════════════════════════════════════
 function App() {
-  // La sesión ahora vive en el AuthContext (persistida en localStorage),
-  // así "isLoggedIn" se deriva del usuario real y sobrevive a un refresh.
   const { user, logout } = useContext(AuthContext);
   const isLoggedIn = !!user;
 
@@ -25,57 +109,8 @@ function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 text-gray-800">
 
-        {isLoggedIn && (
-          <nav className="bg-indigo-900 text-white sticky top-0 z-50 shadow-md">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between h-16">
-
-                <div className="flex-shrink-0">
-                  <Link to="/" className="text-xl font-black tracking-tight hover:text-amber-400 transition-colors">
-                    🎓 Uni<span className="text-amber-400">Market</span>
-                  </Link>
-                </div>
-
-                <div className="hidden md:block flex-1 max-w-md mx-8">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Buscar libros, apuntes, servicios..."
-                      className="w-full bg-white text-gray-900 pl-4 pr-10 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm"
-                    />
-                    <span className="absolute right-3 top-2.5 text-gray-400">🔍</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2 md:space-x-4">
-                  <Link to="/" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                    🏠 <span>Inicio</span>
-                  </Link>
-
-                  <Link to="/publicar" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                    ➕ <span className="ml-0.5">Publicar</span>
-                  </Link>
-
-                  <Link to="/mis-articulos" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                    📦 <span className="hidden sm:inline">Mis Artículos</span>
-                  </Link>
-
-                  <Link to="/dashboard" className="text-sm font-medium hover:text-amber-400 px-2 py-2 rounded-md transition-colors flex items-center gap-1">
-                    👤 <span>Mi Perfil</span>
-                  </Link>
-
-                  <button
-                    onClick={logout}
-                    className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95"
-                  >
-                    🚪 Salir
-                  </button>
-                </div>
-
-              </div>
-            </div>
-          </nav>
-        )}
+        {/* Renderizamos el HeaderNavbar que ahora sí puede usar Hooks de navegación */}
+        {isLoggedIn && <HeaderNavbar logout={logout} />}
 
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>

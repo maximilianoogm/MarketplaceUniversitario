@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PostForm from '../components/PostForm';
 
+const API_URL = "http://localhost:3000";
+
 export default function EditPost() {
   const { id } = useParams(); 
   const navigate = useNavigate();
@@ -9,22 +11,43 @@ export default function EditPost() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const publicacionesGuardadas = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
-    const publicacionEncontrada = publicacionesGuardadas.find(post => String(post.id) === String(id));
+    const fetchPost = async () => {
+      try {
+        console.log("🛠️ Intentando editar producto con ID:", id);
+        
+        const res = await fetch(`${API_URL}/products/${id}`);
+        console.log("📡 Respuesta del servidor:", res.status);
 
-    if (publicacionEncontrada) {
-      setPostToEdit({
-        ...publicacionEncontrada,
-        categoria: publicacionEncontrada.tipo 
-      });
-    } else {
-      alert("Publicación no encontrada");
-      navigate('/mis-articulos');
+        if (!res.ok) {
+          throw new Error("El anuncio no existe en la base de datos.");
+        }
+        const data = await res.json();
+        console.log("📦 Datos del producto obtenidos:", data);
+        
+        setPostToEdit({
+          id: data.id,
+          titulo: data.titulo,
+          categoryId: data.categoryId,
+          descripcion: data.descripcion,
+          precio: data.precio,
+          estado: data.detalles?.estado || 'Como nuevo',
+          imagenes: data.imagen ? [data.imagen] : []
+        });
+      } catch (error) {
+        console.error("❌ Error cargando publicación:", error);
+        alert("Publicación no encontrada o error de conexión con el servidor.");
+        navigate('/mis-articulos');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchPost();
     }
-    setLoading(false);
   }, [id, navigate]);
 
-  if (loading) return <div className="text-center mt-20 font-bold text-xl">Cargando...</div>;
+  if (loading) return <div className="text-center mt-20 font-bold text-xl text-gray-500">Cargando datos del anuncio...</div>;
   if (!postToEdit) return null;
 
   return (

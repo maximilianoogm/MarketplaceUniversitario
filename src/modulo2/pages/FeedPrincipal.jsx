@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom"; // <-- Importamos useSearchParams para leer la URL
 import useFetch from "../../hooks/useFetch";
 import { AuthContext } from "../../modulo1/context/AuthContext";
 
@@ -9,19 +9,42 @@ import { AuthContext } from "../../modulo1/context/AuthContext";
 const API_URL = "http://localhost:3000";
 
 // ==========================================
+// FUNCIÓN SELECTORA DE IMÁGENES TEMÁTICAS
+// ==========================================
+const obtenerImagenCategoria = (producto) => {
+  if (producto.imagen && producto.imagen.startsWith("http") && !producto.imagen.includes("placeholder")) {
+    return producto.imagen;
+  }
+
+  const categoria = producto.categoria?.name?.toLowerCase() || "";
+
+  if (categoria.includes("libro")) {
+    return "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("copia") || categoria.includes("impresion") || categoria.includes("apuntes y copias")) {
+    return "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("apunte") || categoria.includes("resumen")) {
+    return "https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&auto=format&fit=crop&q=80";
+  }
+  if (categoria.includes("laboratorio") || categoria.includes("herramienta") || categoria.includes("material")) {
+    return "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80";
+  }
+
+  return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80";
+};
+
+// ==========================================
 // Tarjeta de un producto (mapea el JSON del backend)
 // ==========================================
 const TarjetaAnuncio = ({ producto, userId, favInicial }) => {
   const [esFavorito, setEsFavorito] = useState(favInicial);
   const [guardando, setGuardando] = useState(false);
 
-  // Sincroniza el corazón cuando llega la info de favoritos del usuario
-  // (los productos y los favoritos se cargan en peticiones separadas).
   useEffect(() => {
     setEsFavorito(favInicial);
   }, [favInicial]);
 
-  // Acción de escritura: marca/desmarca el favorito en el backend
   const toggleFavorito = async () => {
     if (!userId || guardando) return;
     setGuardando(true);
@@ -33,10 +56,10 @@ const TarjetaAnuncio = ({ producto, userId, favInicial }) => {
       });
       const data = await res.json();
       if (res.ok) {
-        setEsFavorito(data.favorito); // el backend devuelve el estado final
+        setEsFavorito(data.favorito);
       }
     } catch {
-      // si falla la red, no cambiamos el corazón
+      // Error silencioso
     } finally {
       setGuardando(false);
     }
@@ -45,7 +68,11 @@ const TarjetaAnuncio = ({ producto, userId, favInicial }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col group">
       <div className="relative aspect-video bg-gray-100 overflow-hidden">
-        <img src={producto.imagen} alt={producto.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        <img 
+          src={obtenerImagenCategoria(producto)} 
+          alt={producto.titulo} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+        />
         <span className="absolute top-2 left-2 bg-indigo-900/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-xs">
           {producto.categoria?.name}
         </span>
@@ -91,13 +118,15 @@ const FeedPrincipal = () => {
 
   // Traemos los productos reales del backend con el hook useFetch
   const { data: productos, loading, error } = useFetch(`${API_URL}/products`);
-
-  // Traemos el perfil del usuario para saber qué productos ya marcó como favoritos
   const { data: perfil } = useFetch(user?.id ? `${API_URL}/users/${user.id}` : null);
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
+  
+  // ── LEEMOS LA BÚSQUEDA DESDE LA URL ──
+  const [searchParams, setSearchParams] = useSearchParams();
+  const busqueda = searchParams.get("search") || ""; // Lee el parámetro ?search=...
 
-  // Set con los IDs de los productos favoritos del usuario (para pintar los corazones)
+  // Set con los IDs de los productos favoritos del usuario
   const favoritosIds = useMemo(() => {
     const set = new Set();
     (perfil?.productosFavoritos || []).forEach((p) => set.add(p.id));
@@ -113,12 +142,21 @@ const FeedPrincipal = () => {
     ];
   }, [productos]);
 
-  // Filtrado local (igual que en el taller)
+  // ── FILTRADO COMBINADO USANDO LA BÚSQUEDA DE LA URL ──
   const productosFiltrados = useMemo(() => {
     if (!productos) return [];
-    if (categoriaSeleccionada === "Todos") return productos;
-    return productos.filter((p) => p.categoria?.name === categoriaSeleccionada);
-  }, [productos, categoriaSeleccionada]);
+    
+    return productos.filter((p) => {
+      const coincideCategoria = categoriaSeleccionada === "Todos" || p.categoria?.name === categoriaSeleccionada;
+      
+      const query = busqueda.toLowerCase().trim();
+      const coincideBusqueda = 
+        p.titulo?.toLowerCase().includes(query) || 
+        p.descripcion?.toLowerCase().includes(query);
+
+      return coincideCategoria && coincideBusqueda;
+    });
+  }, [productos, categoriaSeleccionada, busqueda]);
 
   return (
     <div className="flex flex-col md:flex-row gap-6">
@@ -135,6 +173,7 @@ const FeedPrincipal = () => {
       </aside>
 
       <section className="flex-1">
+        {/* Retornamos al título simple y limpio */}
         <div className="mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900">Descubre publicaciones</h2>
         </div>
@@ -148,7 +187,18 @@ const FeedPrincipal = () => {
         )}
 
         {!loading && !error && productosFiltrados.length === 0 && (
-          <p className="text-center text-gray-400 py-12">Todavía no hay publicaciones en esta categoría.</p>
+          <div className="text-center py-12 bg-white rounded-xl border border-gray-100 p-6">
+            <span className="text-3xl">📭</span>
+            <p className="text-gray-500 text-sm mt-3">No encontramos publicaciones que coincidan con tu búsqueda.</p>
+            {busqueda && (
+              <button 
+                onClick={() => setSearchParams({})} // Limpia los query params de la URL
+                className="mt-3 text-xs font-bold text-indigo-900 hover:underline"
+              >
+                Limpiar búsqueda
+              </button>
+            )}
+          </div>
         )}
 
         {!loading && !error && productosFiltrados.length > 0 && (
