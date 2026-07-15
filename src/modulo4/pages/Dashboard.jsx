@@ -1,13 +1,39 @@
-import { mockAnuncios, mockUsuarioActual } from "../../data/mocks";
+import { useContext, useMemo } from "react";
+import { AuthContext } from "../../modulo1/context/AuthContext";
+import useFetch from "../../hooks/useFetch";
+
+/* ══════════════════════════════════════════
+   URLs de la API
+   ══════════════════════════════════════════ */
+const API_URL = "http://localhost:3000";
 
 const Dashboard = () => {
-  const user = mockUsuarioActual;
+  const { user } = useContext(AuthContext);
 
-  const misAnuncios = mockAnuncios.filter(
-    (a) => a.autor.idAutor === user.id
+  // Dos peticiones con useFetch: el perfil del usuario y la lista de productos
+  const { data: perfil, loading: loadP, error: errP } = useFetch(
+    user?.id ? `${API_URL}/users/${user.id}` : null
   );
+  const { data: productos, loading: loadProd } = useFetch(`${API_URL}/products`);
 
-  const misFavoritos = mockAnuncios.filter((a) => user.favoritos.includes(a.id));
+  const misAnuncios = useMemo(() => {
+    if (!productos || !user?.id) return [];
+    return productos.filter((p) => p.autorId === user.id);
+  }, [productos, user]);
+
+  const cargando = loadP || loadProd;
+
+  if (cargando) {
+    return <p className="text-center text-gray-400 py-12">Cargando perfil...</p>;
+  }
+
+  if (errP || !perfil) {
+    return <p className="text-center text-red-500 py-12">No se pudo cargar el perfil ({errP})</p>;
+  }
+
+  // El backend devuelve el nombre como "name" en /users/:id
+  const nombre = perfil.name || perfil.nombre || "Usuario";
+  const misFavoritos = perfil.productosFavoritos || [];
 
   let sumaRating = 0;
   for (let i = 0; i < misAnuncios.length; i++) {
@@ -15,7 +41,7 @@ const Dashboard = () => {
   }
   const ratingPromedio = misAnuncios.length > 0 ? (sumaRating / misAnuncios.length).toFixed(1) : "—";
 
-  const partes = user.nombre.split(" ");
+  const partes = nombre.split(" ");
   const iniciales = partes[0][0].toUpperCase() + (partes[1] ? partes[1][0].toUpperCase() : "");
 
   return (
@@ -28,8 +54,8 @@ const Dashboard = () => {
             {iniciales}
           </div>
           <div>
-            <h1 className="text-2xl font-black">{user.nombre}</h1>
-            <p className="text-indigo-300 text-sm">{user.correo}</p>
+            <h1 className="text-2xl font-black">{nombre}</h1>
+            <p className="text-indigo-300 text-sm">{perfil.email}</p>
           </div>
         </div>
       </div>
@@ -37,7 +63,7 @@ const Dashboard = () => {
       {/* Estadísticas */}
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
-          <p className="text-3xl font-black text-indigo-900">{misAnuncios.length}</p>
+          <p className="text-3xl font-black text-indigo-900">{perfil.totalPublicaciones}</p>
           <p className="text-xs text-gray-400 mt-1 font-semibold uppercase tracking-wide">Publicaciones</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
@@ -65,14 +91,11 @@ const Dashboard = () => {
                   className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full uppercase">
-                    {anuncio.tipo}
-                  </span>
                   <p className="font-bold text-gray-900 text-sm mt-1 truncate">{anuncio.titulo}</p>
-                  <p className="text-xs text-gray-400">por {anuncio.autor.nombre} · ⭐ {anuncio.rating}</p>
+                  <p className="text-xs text-gray-400">⭐ {anuncio.rating}</p>
                 </div>
                 <p className="font-black text-gray-900 text-sm flex-shrink-0">
-                  {anuncio.precio === 0 ? <span className="text-green-600">Gratis</span> : `S/ ${anuncio.precio.toFixed(2)}`}
+                  {anuncio.precio === 0 ? <span className="text-green-600">Gratis</span> : `S/ ${Number(anuncio.precio).toFixed(2)}`}
                 </p>
               </div>
             ))}
@@ -99,13 +122,13 @@ const Dashboard = () => {
                 />
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full uppercase">
-                    {anuncio.tipo}
+                    {anuncio.categoria?.name}
                   </span>
                   <p className="font-bold text-gray-900 text-sm mt-1 truncate">{anuncio.titulo}</p>
                   <p className="text-xs text-gray-400">⭐ {anuncio.rating} · {anuncio.fechaPublicacion}</p>
                 </div>
                 <p className="font-black text-gray-900 text-sm flex-shrink-0">
-                  {anuncio.precio === 0 ? <span className="text-green-600">Gratis</span> : `S/ ${anuncio.precio.toFixed(2)}`}
+                  {anuncio.precio === 0 ? <span className="text-green-600">Gratis</span> : `S/ ${Number(anuncio.precio).toFixed(2)}`}
                 </p>
               </div>
             ))}

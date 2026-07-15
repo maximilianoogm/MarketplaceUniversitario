@@ -1,19 +1,40 @@
-import { useState, useContext } from 'react';
-import CategorySelector from './CategorySelector';
+import { useState, useEffect, useContext } from 'react';
 import PriceField from './PriceField';
 import { AuthContext } from '../../modulo1/context/AuthContext';
+import useFetch from '../../hooks/useFetch';
+
+/* ══════════════════════════════════════════
+   URLs de la API
+   ══════════════════════════════════════════ */
+const API_URL = "http://localhost:3000";
 
 export default function PostForm({ initialData, isEditing = false }) {
   const { user } = useContext(AuthContext);
 
+  // Las categorías reales del backend se cargan con useFetch (lectura)
+  const { data: categorias } = useFetch(`${API_URL}/categories`);
+
   const [postData, setPostData] = useState(initialData || {
     titulo: '',
-    categoria: 'Libros',
+    categoryId: '',
     descripcion: '',
-    precio: ''
+    precio: '',
+    estado: 'Como nuevo'
   });
 
   const [imagenes, setImagenes] = useState(initialData?.imagenes || []);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState('');
+
+  // Cuando llegan las categorías, preseleccionamos la primera si no hay una elegida
+  useEffect(() => {
+    if (categorias && categorias.length > 0) {
+      setPostData((prev) => ({
+        ...prev,
+        categoryId: prev.categoryId || categorias[0].id,
+      }));
+    }
+  }, [categorias]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,7 +47,6 @@ export default function PostForm({ initialData, isEditing = false }) {
       alert("Máximo 3 imágenes permitidas.");
       return;
     }
-
     const nuevasImagenes = files.map(file => URL.createObjectURL(file));
     setImagenes(prev => [...prev, ...nuevasImagenes]);
   };
@@ -35,53 +55,59 @@ export default function PostForm({ initialData, isEditing = false }) {
     setImagenes(imagenes.filter((_, index) => index !== indexToRemove));
   };
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
-    const publicacionesGuardadas = JSON.parse(localStorage.getItem('g3_publicaciones')) || [];
-
+    // La edición aún no tiene endpoint en el backend (no hay PUT /products).
     if (isEditing) {
-      const listaActualizada = publicacionesGuardadas.map((post) =>
-        String(post.id) === String(initialData.id) ? { ...post, ...postData, imagenes } : post
-      );
-      localStorage.setItem('g3_publicaciones', JSON.stringify(listaActualizada));
-      alert('¡Publicación actualizada con éxito!');
-    } else {
-      const nuevaPublicacion = {
-        id: Date.now(),
-        tipo: postData.categoria,
-        titulo: postData.titulo,
-        descripcion: postData.descripcion,
-        precio: Number(postData.precio) || 0,
-
-        imagen: postData.categoria === "Libros"
-          ? "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=60"
-          : postData.categoria === "Apuntes"
-            ? "https://images.unsplash.com/photo-1517842645767-c639042777db?w=500&auto=format&fit=crop&q=60"
-            : "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=500&auto=format&fit=crop&q=60",
-
-        imagenesAdicionales: [
-          "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500&auto=format&fit=crop&q=60"
-        ],
-        rating: 5.0,
-        autor: {
-          idAutor: user?.id || user?.email || "u_001",
-          nombre: user?.nombre || user?.email?.split('@')[0] || "Estudiante",
-          carrera: user?.carrera || "Ingeniería"
-        },
-        fechaPublicacion: new Date().toISOString().split('T')[0]
-      };
-
-      publicacionesGuardadas.push(nuevaPublicacion);
-      localStorage.setItem('g3_publicaciones', JSON.stringify(publicacionesGuardadas));
-      alert('¡Anuncio publicado con éxito!');
-
-      setPostData({ titulo: '', categoria: 'Libros', descripcion: '', precio: '' });
-      setImagenes([]);
+      alert('La edición todavía no está conectada al servidor.');
+      return;
     }
-  }; 
 
+    if (!user?.id) {
+      setError('Debes iniciar sesión para publicar.');
+      return;
+    }
+
+    setEnviando(true);
+    try {
+      // Acción de escritura: fetch POST directo al endpoint de Integrante 3
+      const res = await fetch(`${API_URL}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: postData.titulo,
+          descripcion: postData.descripcion,
+          precio: Number(postData.precio) || 0,
+          autorId: user.id,
+          categoryId: Number(postData.categoryId),
+          estado: postData.estado,
+          ciclo: 1,
+          stock: 1,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(data?.error || "No se pudo publicar el anuncio.");
+      }
+
+      alert('¡Anuncio publicado con éxito!');
+      setPostData({
+        titulo: '',
+        categoryId: categorias?.[0]?.id ?? '',
+        descripcion: '',
+        precio: '',
+        estado: 'Como nuevo'
+      });
+      setImagenes([]);
+    } catch (err) {
+      setError(err.message || 'No se pudo publicar el anuncio.');
+    } finally {
+      setEnviando(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto mt-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
@@ -100,8 +126,37 @@ export default function PostForm({ initialData, isEditing = false }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <CategorySelector value={postData.categoria} onChange={handleChange} />
+          <div>
+            <label className="block mb-2 text-sm font-semibold text-gray-700">Categoría</label>
+            <select
+              name="categoryId"
+              value={postData.categoryId}
+              onChange={handleChange}
+              required
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 transition duration-200"
+            >
+              {!categorias && <option value="">Cargando...</option>}
+              {categorias && categorias.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
+          </div>
           <PriceField value={postData.precio} onChange={handleChange} />
+        </div>
+
+        <div>
+          <label className="block mb-2 text-sm font-semibold text-gray-700">Estado del producto</label>
+          <select
+            name="estado"
+            value={postData.estado}
+            onChange={handleChange}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+          >
+            <option value="Nuevo">Nuevo</option>
+            <option value="Como nuevo">Como nuevo</option>
+            <option value="Buen estado">Buen estado</option>
+            <option value="Usado">Usado</option>
+          </select>
         </div>
 
         <div>
@@ -127,8 +182,14 @@ export default function PostForm({ initialData, isEditing = false }) {
           )}
         </div>
 
-        <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 font-bold rounded-lg text-sm px-5 py-3.5 shadow-lg transition-transform hover:-translate-y-0.5">
-          {isEditing ? 'Guardar Cambios' : 'Publicar Anuncio'}
+        {error && (
+          <p className="rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+            {error}
+          </p>
+        )}
+
+        <button type="submit" disabled={enviando} className="w-full text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-60 font-bold rounded-lg text-sm px-5 py-3.5 shadow-lg transition-transform hover:-translate-y-0.5">
+          {enviando ? 'Publicando...' : isEditing ? 'Guardar Cambios' : 'Publicar Anuncio'}
         </button>
       </form>
     </div>

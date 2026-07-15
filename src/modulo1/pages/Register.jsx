@@ -13,10 +13,11 @@ const Register = () => {
   const [error, setError] = useState("");
 
   const { register } = useAuth();
+  const [cargando, setCargando] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
 
     e.preventDefault();
     setError("");
@@ -26,16 +27,19 @@ const Register = () => {
       return;
     }
 
-    const success = register({
-      name: name.trim(),
-      email: email.trim(),
-      password,
-    });
-
-    if (success) {
+    setCargando(true);
+    try {
+      // Registra en el backend real (POST /users). El schema usa "nombre".
+      await register({
+        nombre: name.trim(),
+        email: email.trim(),
+        password,
+      });
       navigate("/login");
-    } else {
-      setError("El usuario ya existe");
+    } catch (err) {
+      setError(err.message || "El usuario ya existe");
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -115,9 +119,10 @@ const Register = () => {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg bg-indigo-900 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-indigo-800 active:scale-[0.99]"
+                  disabled={cargando}
+                  className="w-full rounded-lg bg-indigo-900 px-4 py-3 text-sm font-black text-white shadow-sm transition hover:bg-indigo-800 active:scale-[0.99] disabled:opacity-60"
                 >
-                  Crear cuenta
+                  {cargando ? "Creando..." : "Crear cuenta"}
                 </button>
               </form>
 

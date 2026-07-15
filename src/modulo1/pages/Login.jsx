@@ -6,17 +6,18 @@ import { AuthContext } from "../context/AuthContext";
 const loginHeroImage =
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=900&auto=format&fit=crop&q=80";
 
-const Login = ({ setIsLoggedIn }) => {
+const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
   const navigate = useNavigate();
-  
-  // 3. Consumimos el AuthContext usando el método oficial de React
+
+  // Consumimos el AuthContext usando el método oficial de React
   const { login } = useContext(AuthContext);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -25,15 +26,15 @@ const Login = ({ setIsLoggedIn }) => {
       return;
     }
 
-    // 3. REMPLAZADO: Ya no validamos contra "juan" hardcodeado. 
-    // Ahora llamamos a la función global que busca en localStorage["users"]
-    const esValido = login(email.trim(), password.trim());
-
-    if (esValido) {
-      setIsLoggedIn(true); 
-      navigate("/");       
-    } else {
-      setError("Correo universitario o contraseña incorrectos");
+    setCargando(true);
+    try {
+      // Llama al backend real (POST /login) a través del AuthContext
+      await login(email.trim(), password.trim());
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Correo universitario o contraseña incorrectos");
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -139,9 +140,10 @@ const Login = ({ setIsLoggedIn }) => {
 
                 <button
                   type="submit"
-                  className="w-full rounded-lg bg-amber-500 px-4 py-3 text-sm font-black text-indigo-950 shadow-sm transition hover:bg-amber-400 active:scale-[0.99]"
+                  disabled={cargando}
+                  className="w-full rounded-lg bg-amber-500 px-4 py-3 text-sm font-black text-indigo-950 shadow-sm transition hover:bg-amber-400 active:scale-[0.99] disabled:opacity-60"
                 >
-                  Ingresar
+                  {cargando ? "Ingresando..." : "Ingresar"}
                 </button>
               </form>
 

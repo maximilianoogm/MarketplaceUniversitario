@@ -1,32 +1,17 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import ChatwootWidget from '../../components/ChatwootWidget';
+import useFetch from '../../hooks/useFetch';
+
+/* ══════════════════════════════════════════
+   URL de la API
+   ══════════════════════════════════════════ */
+const API_URL = "http://localhost:3000";
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
-  const [anuncio, setAnuncio] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const cargarAnuncio = async () => {
-      try {
-        setCargando(true);
-        const respuesta = await fetch(`http://localhost:3000/products/${id}`);
-        if (!respuesta.ok) throw new Error("No se encontró el producto");
-        const data = await respuesta.json();
-        setAnuncio(data);
-        setError(null);
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
-      } finally {
-        setCargando(false);
-      }
-    };
-
-    cargarAnuncio();
-  }, [id]);
+  // Traemos el producto por su id con el hook useFetch
+  const { data: anuncio, loading: cargando, error } = useFetch(`${API_URL}/products/${id}`);
 
   const contactarVendedor = () => {
     if (!window.$chatwoot) return;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
 
 import Login from './modulo1/pages/Login';
@@ -8,6 +8,7 @@ import NavbarLayout from "./modulo1/components/NavbarLayout";
 import FeedPrincipal from './modulo2/pages/FeedPrincipal';
 import DetalleAnuncio from './modulo2/pages/DetalleAnuncio';
 import Dashboard from './modulo4/pages/Dashboard';
+import { AuthContext } from './modulo1/context/AuthContext';
 
 import PostForm from './modulo3/components/PostForm';
 import EditPost from './modulo3/pages/EditPost';
@@ -15,7 +16,10 @@ import MyPosts from './modulo3/pages/MyPosts';
 import ChatwootWidget from './components/ChatwootWidget';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // La sesión ahora vive en el AuthContext (persistida en localStorage),
+  // así "isLoggedIn" se deriva del usuario real y sobrevive a un refresh.
+  const { user, logout } = useContext(AuthContext);
+  const isLoggedIn = !!user;
 
   return (
     <BrowserRouter>
@@ -61,7 +65,7 @@ function App() {
                   </Link>
 
                   <button
-                    onClick={() => setIsLoggedIn(false)}
+                    onClick={logout}
                     className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-3 py-2 rounded-lg shadow transition-all transform active:scale-95"
                   >
                     🚪 Salir
@@ -75,12 +79,12 @@ function App() {
 
         <main className="p-6 max-w-7xl mx-auto">
           <Routes>
-            <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login setIsLoggedIn={setIsLoggedIn} />} />
+            <Route path="/login" element={isLoggedIn ? <Navigate to="/" /> : <Login />} />
             <Route path="/registro" element={isLoggedIn ? <Navigate to="/" /> : <Register />} />
-            <Route 
+            <Route
               element={
                 <ProtectedRoute isLoggedIn={isLoggedIn}>
-                  <NavbarLayout setIsLoggedIn={setIsLoggedIn} />
+                  <NavbarLayout />
                 </ProtectedRoute>
               }
             >
