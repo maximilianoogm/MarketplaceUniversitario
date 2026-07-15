@@ -102,7 +102,7 @@ function App() {
   const isLoggedIn = !!user;
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/MarketplaceUniversitario">
       <div className="min-h-screen bg-gray-50 text-gray-800">
 
         {isLoggedIn && <HeaderNavbar logout={logout} />}
