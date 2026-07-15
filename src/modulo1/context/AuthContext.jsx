@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 /* ══════════════════════════════════════════
    URL de la API
    ══════════════════════════════════════════ */
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 export const AuthContext = createContext();
 

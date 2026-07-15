@@ -6,7 +6,7 @@ import useFetch from '../../hooks/useFetch';
 /* ══════════════════════════════════════════
    URL de la API
    ══════════════════════════════════════════ */
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 const obtenerImagenCategoria = (producto) => {
   if (producto.imagen && producto.imagen.startsWith("http") && !producto.imagen.includes("placeholder")) {

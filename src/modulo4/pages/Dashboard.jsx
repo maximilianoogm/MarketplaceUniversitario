@@ -5,7 +5,7 @@ import useFetch from "../../hooks/useFetch";
 /* ══════════════════════════════════════════
    URLs de la API
    ══════════════════════════════════════════ */
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);

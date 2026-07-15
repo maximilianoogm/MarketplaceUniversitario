@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PostForm from '../components/PostForm';
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 export default function EditPost() {
   const { id } = useParams(); 

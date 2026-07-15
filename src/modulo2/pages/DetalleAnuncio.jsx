@@ -7,7 +7,7 @@ import { AuthContext } from '../../modulo1/context/AuthContext'; // Importamos e
 /* ══════════════════════════════════════════
    URL de la API
    ══════════════════════════════════════════ */
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 // ==========================================
 // FUNCIÓN SELECTORA DE IMÁGENES TEMÁTICAS

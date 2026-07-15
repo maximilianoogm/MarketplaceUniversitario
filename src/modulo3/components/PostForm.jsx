@@ -6,7 +6,7 @@ import useFetch from '../../hooks/useFetch';
 /* ══════════════════════════════════════════
    URLs de la API
    ══════════════════════════════════════════ */
-const API_URL = "http://localhost:3000";
+const API_URL = "https://backend-unimarket.onrender.com";
 
 export default function PostForm({ initialData, isEditing = false }) {
   const { user } = useContext(AuthContext);
