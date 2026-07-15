@@ -11,7 +11,6 @@ const API_URL = "http://localhost:3000";
 export default function PostForm({ initialData, isEditing = false }) {
   const { user } = useContext(AuthContext);
 
-  // Las categorías reales del backend se cargan con useFetch (lectura)
   const { data: categorias } = useFetch(`${API_URL}/categories`);
 
   const [postData, setPostData] = useState(initialData || {
@@ -22,19 +21,15 @@ export default function PostForm({ initialData, isEditing = false }) {
     estado: 'Como nuevo'
   });
 
-  const [imagenes, setImagenes] = useState(initialData?.imagenes || []);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
 
-  // ── ESTADO PARA EL TOAST FLOTANTE DE ÉXITO/ALERTA ──
   const [toast, setToast] = useState({ visible: false, mensaje: '', tipo: 'success' });
 
-  // Función interna para disparar notificaciones temporales
   const mostrarNotificacion = (mensaje, tipo = 'success') => {
     setToast({ visible: true, mensaje, tipo });
   };
 
-  // Efecto para desvanecer la notificación automáticamente tras 3 segundos
   useEffect(() => {
     if (toast.visible) {
       const timer = setTimeout(() => {
@@ -44,7 +39,6 @@ export default function PostForm({ initialData, isEditing = false }) {
     }
   }, [toast.visible]);
 
-  // Cuando llegan las categorías, preseleccionamos la primera si no hay una elegida
   useEffect(() => {
     if (categorias && categorias.length > 0) {
       setPostData((prev) => ({
@@ -57,20 +51,6 @@ export default function PostForm({ initialData, isEditing = false }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setPostData({ ...postData, [name]: value });
-  };
-
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (imagenes.length + files.length > 3) {
-      mostrarNotificacion("Máximo 3 imágenes permitidas.", "error");
-      return;
-    }
-    const nuevasImagenes = files.map(file => URL.createObjectURL(file));
-    setImagenes(prev => [...prev, ...nuevasImagenes]);
-  };
-
-  const removeImage = (indexToRemove) => {
-    setImagenes(imagenes.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSubmit = async (e) => {
@@ -101,7 +81,6 @@ export default function PostForm({ initialData, isEditing = false }) {
 
         mostrarNotificacion('¡Anuncio actualizado con éxito!', 'success');
 
-        // Retornamos a la vista de mis publicaciones después de 1.5 segundos para que vean el toast
         setTimeout(() => {
           window.location.href = '/mis-articulos';
         }, 1500);
@@ -141,7 +120,6 @@ export default function PostForm({ initialData, isEditing = false }) {
         throw new Error(data?.error || "No se pudo publicar el anuncio.");
       }
 
-      // Notificación de éxito elegante en lugar del alert nativo
       mostrarNotificacion('¡Anuncio publicado con éxito!', 'success');
 
       setPostData({
@@ -151,7 +129,6 @@ export default function PostForm({ initialData, isEditing = false }) {
         precio: '',
         estado: 'Como nuevo'
       });
-      setImagenes([]);
     } catch (err) {
       setError(err.message || 'No se pudo publicar el anuncio.');
     } finally {
@@ -162,12 +139,12 @@ export default function PostForm({ initialData, isEditing = false }) {
   return (
     <div className="relative max-w-2xl mx-auto mt-8">
 
-      {/* ── ALERTA TOAST ELEGANTE EN TAILWIND ── */}
       {toast.visible && (
-        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 max-w-sm p-4 rounded-xl shadow-2xl border transition-all duration-300 transform translate-y-0 animate-bounce ${toast.tipo === 'success'
+        <div className={`fixed top-5 right-5 z-50 flex items-center gap-3 max-w-sm p-4 rounded-xl shadow-2xl border transition-all duration-300 transform translate-y-0 animate-bounce ${
+          toast.tipo === 'success'
             ? 'bg-emerald-50 border-emerald-100 text-emerald-800'
             : 'bg-red-50 border-red-100 text-red-800'
-          }`}>
+        }`}>
           <span className="text-xl">{toast.tipo === 'success' ? '✅' : '⚠️'}</span>
           <p className="text-sm font-bold">{toast.mensaje}</p>
         </div>
@@ -227,22 +204,6 @@ export default function PostForm({ initialData, isEditing = false }) {
             <textarea name="descripcion" value={postData.descripcion} onChange={handleChange} required rows="4"
               className="bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
               placeholder="Describe el estado del recurso..." />
-          </div>
-
-          <div>
-            <label className="block mb-2 text-sm font-semibold text-gray-700">Imágenes (Máx 3)</label>
-            <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 p-2" />
-
-            {imagenes.length > 0 && (
-              <div className="flex gap-4 overflow-x-auto py-4">
-                {imagenes.map((imgSrc, index) => (
-                  <div key={index} className="relative w-24 h-24 flex-shrink-0">
-                    <img src={imgSrc} alt="preview" className="w-full h-full object-cover rounded-md border shadow-sm" />
-                    <button type="button" onClick={() => removeImage(index)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs font-bold hover:bg-red-600">X</button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           {error && (

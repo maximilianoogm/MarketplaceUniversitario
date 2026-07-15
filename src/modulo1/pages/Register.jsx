@@ -29,7 +29,6 @@ const Register = () => {
 
     setCargando(true);
     try {
-      // Registra en el backend real (POST /users). El schema usa "nombre".
       await register({
         nombre: name.trim(),
         email: email.trim(),

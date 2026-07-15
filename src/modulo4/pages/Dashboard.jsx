@@ -10,7 +10,6 @@ const API_URL = "http://localhost:3000";
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
 
-  // Dos peticiones con useFetch: el perfil del usuario y la lista de productos
   const { data: perfil, loading: loadP, error: errP } = useFetch(
     user?.id ? `${API_URL}/users/${user.id}` : null
   );

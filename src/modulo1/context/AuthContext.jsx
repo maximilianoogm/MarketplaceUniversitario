@@ -9,8 +9,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
 
-  // Estado inicial perezoso: lee la sesión guardada ANTES del primer render,
-  // así al recargar la página las rutas protegidas no rebotan al login.
+
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("currentUser"));
@@ -19,7 +18,6 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  // Acción de escritura: registra al usuario en el backend (POST /users)
   const register = async (newUser) => {
     const res = await fetch(`${API_URL}/users`, {
       method: "POST",
@@ -33,7 +31,6 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  // Acción de escritura: valida credenciales (POST /login) y guarda la sesión
   const login = async (email, password) => {
     const res = await fetch(`${API_URL}/login`, {
       method: "POST",

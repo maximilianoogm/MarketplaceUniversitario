@@ -1,6 +1,8 @@
+import { useState, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ChatwootWidget from '../../components/ChatwootWidget';
 import useFetch from '../../hooks/useFetch';
+import { AuthContext } from '../../modulo1/context/AuthContext'; // Importamos el contexto para saber quién está logueado
 
 /* ══════════════════════════════════════════
    URL de la API
@@ -11,7 +13,6 @@ const API_URL = "http://localhost:3000";
 // FUNCIÓN SELECTORA DE IMÁGENES TEMÁTICAS
 // ==========================================
 const obtenerImagenCategoria = (producto) => {
-  // Si el producto ya tiene una imagen válida que no sea un placeholder roto, la usamos
   if (producto.imagen && producto.imagen.startsWith("http") && !producto.imagen.includes("placeholder")) {
     return producto.imagen;
   }
@@ -31,23 +32,53 @@ const obtenerImagenCategoria = (producto) => {
     return "https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80";
   }
 
-  // Imagen genérica de UniMarket por defecto
   return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80";
 };
 
 const DetalleAnuncio = () => {
   const { id } = useParams();
+  const { user } = useContext(AuthContext); // Obtenemos el usuario activo
 
-  // Traemos el producto por su id con el hook useFetch
-  const { data: anuncio, loading: cargando, error } = useFetch(`${API_URL}/products/${id}`);
+  const { data: anuncio, loading: cargando, error, mutate } = useFetch(`${API_URL}/products/${id}`);
+
+  // ── ESTADOS PARA LA CALIFICACIÓN ──
+  const [puntuacionUsuario, setPuntuacionUsuario] = useState(0);
+  const [votoRegistrado, setVotoRegistrado] = useState(false);
+  const [enviandoVoto, setEnviandoVoto] = useState(false);
+
+  // Función para calificar y hacer PATCH en el backend
+  const calificarProducto = async (estrellas) => {
+    if (enviandoVoto || votoRegistrado) return;
+    setEnviandoVoto(true);
+    setPuntuacionUsuario(estrellas);
+
+    try {
+      const res = await fetch(`${API_URL}/products/${id}/rate`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: estrellas })
+      });
+
+      if (!res.ok) throw new Error("No se pudo registrar la puntuación.");
+
+      setVotoRegistrado(true);
+      
+      // mutate actualiza la información del producto localmente en el hook useFetch sin recargar la página
+      if (mutate) {
+        mutate();
+      }
+    } catch (err) {
+      alert("Error al calificar: " + err.message);
+    } finally {
+      setEnviandoVoto(false);
+    }
+  };
 
   const contactarVendedor = () => {
     if (!window.$chatwoot) return;
 
     const ultimoVendedor = window.localStorage.getItem("ultimoVendedorChat");
 
-    // Si el chat abierto es de OTRO vendedor, reseteamos la conversación
-    // para no mezclar mensajes de distintos vendedores en el mismo hilo.
     if (ultimoVendedor && ultimoVendedor !== String(anuncio.autorId)) {
       window.$chatwoot.reset();
     }
@@ -77,6 +108,9 @@ const DetalleAnuncio = () => {
     );
   }
 
+  // Comprobar si el usuario logueado es el dueño de la publicación
+  const esPropietario = user?.id === anuncio.autorId;
+
   return (
     <div className="max-w-5xl mx-auto py-6">
       <div className="mb-6">
@@ -88,7 +122,6 @@ const DetalleAnuncio = () => {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden grid md:grid-cols-2 gap-8 p-6 sm:p-8">
 
         <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
-          {/* AQUÍ SE USA LA NUEVA FUNCIÓN SELECTORA */}
           <img
             src={obtenerImagenCategoria(anuncio)}
             alt={anuncio.titulo}
@@ -104,7 +137,9 @@ const DetalleAnuncio = () => {
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
               <span>Publicado el {anuncio.fechaPublicacion}</span>
               <span>•</span>
-              <span className="text-amber-500 font-bold">⭐ {anuncio.rating}</span>
+              <span className="text-amber-500 font-bold flex items-center gap-1">
+                ⭐ {Number(anuncio.rating ?? 5.0).toFixed(1)}
+              </span>
             </div>
 
             <h1 className="text-3xl font-black text-gray-950 tracking-tight leading-tight">
@@ -129,23 +164,54 @@ const DetalleAnuncio = () => {
             </div>
           </div>
 
-          <div className="mt-8 bg-gray-50 rounded-xl p-4 border border-gray-100">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Información del vendedor</h3>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-black text-gray-950 text-base">{anuncio.autor?.nombre}</p>
-                <p className="text-xs text-indigo-900 font-medium bg-indigo-50 px-2 py-0.5 rounded-md mt-1 inline-block">
-                  🎓 Ingeniería de {anuncio.autor?.carrera}
-                </p>
+          <div className="space-y-4 mt-8">
+            {/* ── SECCIÓN INTERACTIVA DE ESTRELLAS ── */}
+            {!esPropietario && (
+              <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4">
+                <h4 className="font-bold text-gray-900 text-sm mb-2">¿Qué te parece este artículo?</h4>
+                {votoRegistrado ? (
+                  <p className="text-emerald-700 font-bold text-xs flex items-center gap-1.5 animate-pulse">
+                    🎉 ¡Tu calificación de {puntuacionUsuario} ⭐ ha sido registrada con éxito!
+                  </p>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <p className="text-xs text-gray-500">Haz clic para calificar:</p>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((estrella) => (
+                        <button
+                          key={estrella}
+                          onClick={() => calificarProducto(estrella)}
+                          disabled={enviandoVoto}
+                          className="text-2xl transition-all duration-150 active:scale-90 hover:scale-115 cursor-pointer"
+                        >
+                          {estrella <= (puntuacionUsuario) ? '⭐' : '☆'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
 
-              <div className="text-right max-w-[200px]">
-                <button
-                  onClick={contactarVendedor}
-                  className="bg-indigo-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors cursor-pointer"
-                >
-                  💬 Contactar al vendedor
-                </button>
+            {/* Información del vendedor */}
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Información del vendedor</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-black text-gray-950 text-base">{anuncio.autor?.nombre}</p>
+                  <p className="text-xs text-indigo-900 font-medium bg-indigo-50 px-2 py-0.5 rounded-md mt-1 inline-block">
+                    🎓 Ingeniería de {anuncio.autor?.carrera}
+                  </p>
+                </div>
+
+                <div className="text-right max-w-[200px]">
+                  <button
+                    onClick={contactarVendedor}
+                    className="bg-indigo-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-indigo-800 transition-colors cursor-pointer"
+                  >
+                    💬 Contactar al vendedor
+                  </button>
+                </div>
               </div>
             </div>
           </div>

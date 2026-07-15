@@ -22,10 +22,8 @@ function HeaderNavbar({ logout }) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // Guardamos el estado local de lo que escribe el usuario
   const [textoBusqueda, setTextoBusqueda] = useState(searchParams.get("search") || "");
 
-  // Si la búsqueda se limpia desde fuera (ej. el botón limpiar del feed), sincronizamos la barra
   useEffect(() => {
     setTextoBusqueda(searchParams.get("search") || "");
   }, [searchParams]);
@@ -34,9 +32,8 @@ function HeaderNavbar({ logout }) {
     const valor = e.target.value;
     setTextoBusqueda(valor);
 
-    // Al escribir, empujamos el valor al parámetro de la URL
     if (valor.trim() === "") {
-      navigate("/"); // Si borra todo, limpia la URL
+      navigate("/"); 
     } else {
       navigate(`/?search=${encodeURIComponent(valor)}`);
     }
@@ -53,7 +50,6 @@ function HeaderNavbar({ logout }) {
             </Link>
           </div>
 
-          {/* Barra de búsqueda integrada y funcional */}
           <div className="hidden md:block flex-1 max-w-md mx-8">
             <div className="relative">
               <input
@@ -109,7 +105,6 @@ function App() {
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 text-gray-800">
 
-        {/* Renderizamos el HeaderNavbar que ahora sí puede usar Hooks de navegación */}
         {isLoggedIn && <HeaderNavbar logout={logout} />}
 
         <main className="p-6 max-w-7xl mx-auto">

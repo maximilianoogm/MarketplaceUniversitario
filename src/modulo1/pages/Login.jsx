@@ -1,6 +1,5 @@
 import { useState, useContext } from "react"; // 1. Agregamos useContext de React
 import { Link, useNavigate } from "react-router-dom";
-// 2. Importamos AuthContext con llaves y la ruta exacta relativa
 import { AuthContext } from "../context/AuthContext"; 
 
 const loginHeroImage =
@@ -14,7 +13,6 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // Consumimos el AuthContext usando el método oficial de React
   const { login } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
@@ -28,7 +26,6 @@ const Login = () => {
 
     setCargando(true);
     try {
-      // Llama al backend real (POST /login) a través del AuthContext
       await login(email.trim(), password.trim());
       navigate("/");
     } catch (err) {
@@ -48,7 +45,6 @@ const Login = () => {
 
           <aside className="bg-indigo-900 p-8 text-white sm:p-10 flex flex-col justify-between gap-8">
             <div>
-              {/* CORRECCIÓN LEVE: Eliminamos el texto "Módulo 1" que salía en producción */}
               <h1 className="text-4xl font-black tracking-tight">
                 Vuelve a <span className="text-amber-400">UniMarket</span>
               </h1>

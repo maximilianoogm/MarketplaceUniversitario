@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useContext } from "react";
-import { Link, useSearchParams } from "react-router-dom"; // <-- Importamos useSearchParams para leer la URL
+import { Link, useSearchParams } from "react-router-dom"; 
 import useFetch from "../../hooks/useFetch";
 import { AuthContext } from "../../modulo1/context/AuthContext";
 
@@ -116,24 +116,20 @@ const TarjetaAnuncio = ({ producto, userId, favInicial }) => {
 const FeedPrincipal = () => {
   const { user } = useContext(AuthContext);
 
-  // Traemos los productos reales del backend con el hook useFetch
   const { data: productos, loading, error } = useFetch(`${API_URL}/products`);
   const { data: perfil } = useFetch(user?.id ? `${API_URL}/users/${user.id}` : null);
 
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("Todos");
   
-  // ── LEEMOS LA BÚSQUEDA DESDE LA URL ──
   const [searchParams, setSearchParams] = useSearchParams();
-  const busqueda = searchParams.get("search") || ""; // Lee el parámetro ?search=...
+  const busqueda = searchParams.get("search") || ""; 
 
-  // Set con los IDs de los productos favoritos del usuario
   const favoritosIds = useMemo(() => {
     const set = new Set();
     (perfil?.productosFavoritos || []).forEach((p) => set.add(p.id));
     return set;
   }, [perfil]);
 
-  // Las categorías del filtro se arman con lo que devuelve el backend
   const gridCategorias = useMemo(() => {
     if (!productos) return ["Todos"];
     return [
@@ -142,7 +138,6 @@ const FeedPrincipal = () => {
     ];
   }, [productos]);
 
-  // ── FILTRADO COMBINADO USANDO LA BÚSQUEDA DE LA URL ──
   const productosFiltrados = useMemo(() => {
     if (!productos) return [];
     
@@ -173,7 +168,6 @@ const FeedPrincipal = () => {
       </aside>
 
       <section className="flex-1">
-        {/* Retornamos al título simple y limpio */}
         <div className="mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-xl font-bold text-gray-900">Descubre publicaciones</h2>
         </div>
@@ -192,7 +186,7 @@ const FeedPrincipal = () => {
             <p className="text-gray-500 text-sm mt-3">No encontramos publicaciones que coincidan con tu búsqueda.</p>
             {busqueda && (
               <button 
-                onClick={() => setSearchParams({})} // Limpia los query params de la URL
+                onClick={() => setSearchParams({})} 
                 className="mt-3 text-xs font-bold text-indigo-900 hover:underline"
               >
                 Limpiar búsqueda

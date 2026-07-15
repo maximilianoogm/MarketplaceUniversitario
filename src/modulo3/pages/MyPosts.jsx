@@ -8,7 +8,6 @@ import useFetch from '../../hooks/useFetch';
    ══════════════════════════════════════════ */
 const API_URL = "http://localhost:3000";
 
-// Selector de imagen de fallback por categoría
 const obtenerImagenCategoria = (producto) => {
   if (producto.imagen && producto.imagen.startsWith("http") && !producto.imagen.includes("placeholder")) {
     return producto.imagen;
@@ -32,18 +31,14 @@ const obtenerImagenCategoria = (producto) => {
 export default function MyPosts() {
   const { user } = useContext(AuthContext);
 
-  // Traemos los productos del backend
   const { data: productos, loading, error } = useFetch(`${API_URL}/products`);
   
-  // Estado local de publicaciones
   const [misPublicaciones, setMisPublicaciones] = useState([]);
   const [eliminandoId, setEliminandoId] = useState(null);
   const [toast, setToast] = useState({ visible: false, mensaje: '' });
 
-  // ── NUEVOS ESTADOS PARA EL MODAL DE CONFIRMACIÓN ──
   const [modalEliminar, setModalEliminar] = useState({ abierto: false, postId: null });
 
-  // Sincronizamos las publicaciones obtenidas con el estado local filtrado
   useEffect(() => {
     if (productos && user?.id) {
       const filtrados = productos.filter((post) => post.autorId === user.id);
@@ -51,7 +46,6 @@ export default function MyPosts() {
     }
   }, [productos, user]);
 
-  // Desvanecer el mensaje Toast
   useEffect(() => {
     if (toast.visible) {
       const timer = setTimeout(() => setToast({ visible: false, mensaje: '' }), 3000);
@@ -59,23 +53,20 @@ export default function MyPosts() {
     }
   }, [toast.visible]);
 
-  // Abre el modal guardando el ID del producto que queremos borrar
   const solicitarEliminar = (postId) => {
     setModalEliminar({ abierto: true, postId });
   };
 
-  // Cierra el modal de confirmación
   const cerrarModal = () => {
     setModalEliminar({ abierto: false, postId: null });
   };
 
-  // Función para confirmar y ejecutar la eliminación en el servidor
   const ejecutarEliminar = async () => {
     const postId = modalEliminar.postId;
     if (!postId) return;
 
     setEliminandoId(postId);
-    cerrarModal(); // Cerramos el modal inmediatamente para mejorar la fluidez visual
+    cerrarModal(); 
 
     try {
       const res = await fetch(`${API_URL}/products/${postId}`, {
@@ -84,7 +75,6 @@ export default function MyPosts() {
 
       if (!res.ok) throw new Error("No se pudo eliminar de la base de datos.");
 
-      // Remover del estado local de inmediato
       setMisPublicaciones(prev => prev.filter(post => post.id !== postId));
       setToast({ visible: true, mensaje: "Anuncio eliminado con éxito." });
     } catch (err) {
@@ -97,7 +87,6 @@ export default function MyPosts() {
   return (
     <div className="max-w-6xl mx-auto mt-8">
       
-      {/* Toast de notificación */}
       {toast.visible && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-3 max-w-sm p-4 rounded-xl shadow-2xl border bg-emerald-50 border-emerald-100 text-emerald-800 animate-bounce">
           <span className="text-xl">✅</span>
@@ -105,7 +94,6 @@ export default function MyPosts() {
         </div>
       )}
 
-      {/* ── MODAL DE CONFIRMACIÓN ESTILIZADO CON TAILWIND ── */}
       {modalEliminar.abierto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-xs transition-opacity">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 animate-scaleIn">
@@ -174,7 +162,6 @@ export default function MyPosts() {
                 <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{post.titulo}</h3>
                 <p className="text-sm text-gray-600 mb-4 flex-1 line-clamp-3">{post.descripcion}</p>
 
-                {/* Botón de eliminar modificado para abrir el nuevo Modal */}
                 <div className="pt-4 border-t border-gray-100 flex gap-3 justify-end">
                   <Link 
                     to={`/editar/${post.id}`} 
